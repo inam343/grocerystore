@@ -16,7 +16,7 @@ const Navbar = () => {
                         <FaAngleDown size={18} />
                     </span>
 
-                    <div className="dropmenue flex flex-col absolute  top-100% right-[0] bg-white shadow-md rounded-md overflow-hidden w-150px gap-2 invisible opicity-0 transition  pt-4 group-hover:visible">
+                    <div className="dropmenue flex flex-col absolute jstify-center  top-100% right-[0] bg-white shadow-md rounded-md overflow-hidden w-150px gap-2 invisible opicity-0 transition  pt-4 group-hover:visible">
                         <Link href="/" className=" text-[13px] text-gray-800 font-[600] hover:text-green-600">Home</Link>
                         <Link href="/count" className="text-[13px] text-gray-800 font-[600] hover:text-green-600">Fruits</Link>
                         <Link href="/meals" className="text-[13px] text-gray-800 font-[600] hover:text-green-600">Meats</Link>
