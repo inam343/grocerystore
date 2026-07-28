@@ -11,9 +11,9 @@ import Image from 'next/image'
 
 function Footer() {
   return (
-    <footer className='bg-[#eeeded] py-2'>
+    <footer className='bg-[#eeeded] py-8'>
       <div className='gap-4  '>
-        <div className='flex items-center justify-center  gap-4 py-3 lg:py-8 pb-0 lg:pb-8  px-0 lg:px-8 '>
+        <div className='flex items-center justify-center dark:bg-zinc-800  gap-4 py-3 lg:py-8 pb-0 lg:pb-8  px-0 lg:px-8 '>
           <div className=' flex items-center justify-center flex-col group w-[15%] cursor-pointer'>
             <LiaShippingFastSolid className='text-[30px] transition-all duration-300 group-hover:text-green-400 group-hover:-translate-y-1' />
             <h3 className='text-[15px] font-[600] mt-3'>Free Shiping</h3>
