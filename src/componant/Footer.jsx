@@ -45,7 +45,7 @@ function Footer() {
           </div>
         </div>
         <hr />
-        <div className=' grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 ml-15  gap-5 justify-around  py-4 '>
+        <div className=' grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 m-5   gap-5 justify-around  py-4 '>
           <div className='flex flex-col  pl-5 m2  border-r-[1px] border-[rgba(0,0,0,0.2)]'>
             <h3 className='text-[20px]  text-gray-700 font-[600] '>Contact us  </h3>
             <p className='pt-5 text-[14px] font-[600] text-gray-600'>Classy Shop-Mega Supper Store
