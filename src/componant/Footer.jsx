@@ -11,7 +11,7 @@ import Image from 'next/image'
 
 function Footer() {
   return (
-    <footer className='bg-[#eeeded] py-8'>
+    <footer className='bg-[#eeeded] py-2'>
       <div className='gap-4  '>
         <div className='flex items-center justify-center  gap-4 py-3 lg:py-8 pb-0 lg:pb-8  px-0 lg:px-8 '>
           <div className=' flex items-center justify-center flex-col group w-[15%] cursor-pointer'>
