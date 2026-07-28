@@ -36,7 +36,7 @@ const Header = () => {
           {username ? (
             <div className="flex items-center text-[14px] sm:text-[15px] md:text-[16px] gap-3">
               <span className="font-bold  text-green-600">
-                Welcome, <br /> {username}
+                hello, <br /> {username}
               </span>
 
               <button
