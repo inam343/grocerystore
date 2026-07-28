@@ -34,7 +34,7 @@ const Header = () => {
 
         <div>
           {username ? (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center text-[14px] sm:text-[15px] md:text-[16px] gap-3">
               <span className="font-bold  text-green-600">
                 Welcome, {username}
               </span>
@@ -50,7 +50,7 @@ const Header = () => {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="hover:text-green-600 transition-colors"
+                className="hover:text-green-600 text-[14px] sm:text-[15px] md:text-[16px]  transition-colors"
               >
                 Login
               </Link>
@@ -59,7 +59,7 @@ const Header = () => {
 
               <Link
                 href="/register"
-                className="hover:text-green-600 transition-colors"
+                className="hover:text-green-600 text-[14px] sm:text-[15px] md:text-[16px] transition-colors"
               >
                 Register
               </Link>
