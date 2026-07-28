@@ -11,11 +11,6 @@ const Navbar = () => {
                 <Link href="/fruits" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Fruits</Link>
                 <Link href="/counter" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Meats</Link>
                 <Link href="/breakfast" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Dairy</Link>
-                <Link href="/breads" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Bakery</Link>
-                <Link href="/breavages" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Beverges</Link>
-                <Link href="/frozen" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Frozen Foods</Link>
-                <Link href="/biscuits" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Snacks</Link>
-                <Link href="/grocerry" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Grocery</Link>
                 <div className="relative group">
                     <span className="text-[15px] text-gray-800 font-[600] hover:text-green-600 cursor-pointer flex items-center gap-1">More
                         <FaAngleDown size={18} />
