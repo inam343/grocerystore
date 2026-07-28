@@ -6,13 +6,13 @@ import { FaAngleDown } from "react-icons/fa";
 const Navbar = () => {
     return (
         <nav className="py-3 ">
-            <div className="grid grid-cols-5 sm:grid-cols-8 p-2 md:grid-cols-10 gap-2  sm:px-15 md:px-15 lg:px-15 items-center justify-center ">
+            <div className="flex items-center justify-center gap-10  sm:px-15 md:px-15 lg:px-15  ">
                 <Link href="/" className=" text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Home</Link>
                 <Link href="/fruits" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Fruits</Link>
                 <Link href="/counter" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Meats</Link>
                 <Link href="/breakfast" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Dairy</Link>
                 <div className="relative group">
-                    <span className="text-[15px] text-gray-800 font-[600] hover:text-green-600 cursor-pointer flex items-center gap-1">More
+                    <span className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600 cursor-pointer flex items-center gap-1">More
                         <FaAngleDown size={18} />
                     </span>
 
