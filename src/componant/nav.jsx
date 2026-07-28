@@ -5,7 +5,7 @@ import counter from "@/app/counter/page";
 import { FaAngleDown } from "react-icons/fa";
 const Navbar = () => {
     return (
-        <nav className="py-3 dark:bg-zinc-800 ">
+        <nav className="py-3 dark:bg-white ">
             <div className="flex items-center justify-center gap-5 sm:gap-8 md:gap-10 dark:bg-zinc-800 bg-white  sm:bg-transparent md:bg-transparent  h-[40px] rounded-lg sm:px-15 md:px-15 lg:px-15  ">
                 <Link href="/" className=" text-[15px] sm:text-[16px] md:text-[18px]   sm:text-gray-800 md:text-gray-800 lg:text-gray-800 font-[600] hover:text-green-600">Home</Link>
                 <Link href="/fruits" className="text-[15px] sm:text-[16px] md:text-[18px] text-gray-800 font-[600] hover:text-green-600">Fruits</Link>
