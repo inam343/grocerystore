@@ -27,7 +27,7 @@ const Header = () => {
     <div className="headerwraper sticky top-0 z-50">
       <header className="flex items-center justify-evenly py-3 border-b border-[rgba(0,0,0,0.1)]">
         <div className="logo">
-          <img src="/logo.png" className="w-[50px] h-[20px]"   alt="logo" />
+          <img src="/logo.png" className="w-[50px] sm:w-[80pxpx] sm:[40px] md:w-[100px] md:h-[40px] h-[20px]"   alt="logo" />
         </div>
 
         <Search />
@@ -74,8 +74,8 @@ const Header = () => {
             </span>
 
             <FaHeart
-              size={20}
-              className="text-gray-900 hover:text-green-500"
+              
+              className="size-[20] sm:size-[30] md:size-[35] text-gray-900 hover:text-green-500"
             />
           </Link>
 
@@ -85,8 +85,8 @@ const Header = () => {
             </span>
 
             <FaShoppingCart
-              size={20}
-              className="text-gray-900 hover:text-green-500"
+              
+              className="size-[20] sm:size-[30] md:size-[35] text-gray-900 hover:text-green-500"
             />
           </Link>
         </div>
