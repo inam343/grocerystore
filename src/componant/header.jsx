@@ -24,7 +24,7 @@ const Header = () => {
   };
 
   return (
-    <div className="headerwraper sticky top-0 z-50">
+    <div className="headerwraper sticky dark:bg-white top-0 z-50">
       <header className="flex items-center justify-evenly dark:bg-transparent py-3 border-b border-[rgba(0,0,0,0.1)]">
         <div className="logo">
           <img src="/logo.png" className="w-[50px] sm:w-[80pxpx] sm:[40px] md:w-[100px] md:h-[40px] h-[20px]"   alt="logo" />
