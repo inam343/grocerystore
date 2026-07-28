@@ -36,12 +36,12 @@ const Header = () => {
           {username ? (
             <div className="flex items-center text-[14px] sm:text-[15px] md:text-[16px] gap-3">
               <span className="font-bold  text-green-600">
-                Welcome, {username}
+                Welcome, <br /> {username}
               </span>
 
               <button
                 onClick={handleLogout}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 text-[14px] sm:text-[15px] md:text-[16px] hover:text-red-700"
               >
                 Logout
               </button>
