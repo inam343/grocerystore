@@ -16,11 +16,10 @@ export default function Home() {
   const [breakfast, setbreakfast] = useState([]);
 
  useEffect(() => {
- useEffect(() => {
   Promise.all([
-    fetch("https://server-production-5112.up.railway.app/api/productrow").then((res) => res.json()),
-    fetch("https://server-production-5112.up.railway.app/api/featuredproduct").then((res) => res.json()),
-    fetch("https://server-production-5112.up.railway.app/api/breakfast").then((res) => res.json())
+    fetch("http://localhost:5000/api/productrow").then((res) => res.json()),
+    fetch("http://localhost:5000/api/featuredproduct").then((res) => res.json()),
+    fetch("http://localhost:5000/api/breakfast").then((res) => res.json())
   ])
     .then(([latestData, featuredData, breakfastData]) => {
       setLatestProducts(latestData);

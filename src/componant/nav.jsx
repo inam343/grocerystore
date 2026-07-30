@@ -1,7 +1,5 @@
 import Link from "next/link";
-import fruits from "@/app/fruits/page";
 import React from "react";
-import counter from "@/app/counter/page";
 import { FaAngleDown } from "react-icons/fa";
 const Navbar = () => {
     return (

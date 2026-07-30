@@ -12,8 +12,8 @@ import Image from 'next/image'
 function Footer() {
   return (
     <footer className='bg-[#eeeded] py-8'>
-      <div className='gap-4  '>
-        <div className='flex items-center justify-center dark:bg-zinc-800  gap-4 py-3 lg:py-8 pb-0 lg:pb-8  px-0 lg:px-8 '>
+      <div className='gap-4'>
+        <div className='flex items-center justify-center  gap-4 py-3 lg:py-8 pb-0 lg:pb-8  px-0 lg:px-8'>
           <div className=' flex items-center justify-center flex-col group w-[15%] cursor-pointer'>
             <LiaShippingFastSolid className='text-[30px] transition-all duration-300 group-hover:text-green-400 group-hover:-translate-y-1' />
             <h3 className='text-[15px] font-[600] mt-3'>Free Shiping</h3>
@@ -45,7 +45,7 @@ function Footer() {
           </div>
         </div>
         <hr />
-        <div className=' grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 m-5   gap-5 justify-around  py-4 '>
+        <div className=' grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4  gap-5 justify-around  py-4 '>
           <div className='flex flex-col  pl-5 m2  border-r-[1px] border-[rgba(0,0,0,0.2)]'>
             <h3 className='text-[20px]  text-gray-700 font-[600] '>Contact us  </h3>
             <p className='pt-5 text-[14px] font-[600] text-gray-600'>Classy Shop-Mega Supper Store
@@ -59,10 +59,10 @@ function Footer() {
             <span className='text-[15px] text-bold  text-black'>(+92) 3241929583</span>
            
           </div>
-          <div className="col2 flex justify-between pl-10 gap-5 w-[10%]">
-            <div className='box  '>
+          <div className="col2 flex justify-between gap-5 w-[10%]">
+            <div className='box'>
               <h3 className='text-[20px] text-gray-700 font-[600] '>Products  </h3>
-              <ul className='list mt-5  '>
+              <ul className='list mt-5'>
                 <li className='list-none text-[14px] -full mb-2 '><Link href="/" className='Link text-[15px] font-[600] text-gray-600'>Price Drop</Link></li>
 
                 <li className='list-none text-[14px] -full mb-2 '><Link href="/" className='Link text-[15px] font-[600] text-gray-600'>New Price</Link></li>
@@ -118,7 +118,7 @@ function Footer() {
           </div>
         </div>
       </div>
-      <div className="bottomscricpt  ml-20 border-t-[1px] border[0,0,0,0.01] grid grid-cols-2  md:grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  items-center justify-arond py-3">
+      <div className="bottomscricpt  border-t-[1px] border[0,0,0,0.01] grid grid-cols-2  md:grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  items-center justify-between py-3">
         <div className='flex'>
           <div className="social flex items-center gap-4">
             <Link href={'/'} className='flex items-center  hover:bg-green-700 justify-center rounded-full  border-[rgba(0,0,0,1)] w-[40px] h-[40px]'><FaFacebook size={30} /></Link>

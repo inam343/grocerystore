@@ -8,16 +8,15 @@ import Catlink from "./Catlink";
 
 import { Navigation } from 'swiper/modules';
 import Image from "next/image";
-import catproducts from "@/app/data/catproduct";
 
 const Catslider = () => {
-  const [catproducts, setCatProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("https://server-production-5112.up.railway.app/api/categories")
+    fetch("http://localhost:5000/api/categories")
       .then((res) => res.json())
       .then((data) => {
-        setCatProducts(data);
+        setCategories(data);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -59,7 +58,7 @@ const Catslider = () => {
             },
           }}
         >
-          {catproducts.map((cproduct) => (
+          {categories.map((cproduct) => (
             <SwiperSlide key={cproduct._id} className="py-3 px-2">
               <Catlink cproduct={cproduct} />
             </SwiperSlide>

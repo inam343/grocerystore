@@ -14,7 +14,7 @@ const PopularProduct = () => {
   };
 
   useEffect(() => {
-    fetch("https://server-production-5112.up.railway.app/api/productslider")
+    fetch("http://localhost:5000/api/productslider")
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
