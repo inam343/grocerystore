@@ -53,7 +53,7 @@ const Header = () => {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="hover:text-green-600 transition-colors"
+                className="hover:text-green-600 text-black transition-colors"
               >
                 Login
               </Link>
