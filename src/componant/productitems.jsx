@@ -1,8 +1,13 @@
+"use client";
+
 import React from "react";
 import Rating from "@mui/material/Rating";
 import Link from "next/link";
+import { useCart } from "@/context/CartContext";
 
 const Productitem = ({ product }) => {
+  const { addToCart } = useCart();
+
   return (
     <div className="productitem shadow-md w-full bg-white rounded-md flex flex-col gap-1">
 
@@ -41,7 +46,10 @@ const Productitem = ({ product }) => {
         </span>
       </div>
 
-      <button className="btn-border-g">
+      <button
+        className="btn-border-g"
+        onClick={() => addToCart(product)}
+      >
         Add to Cart
       </button>
 
