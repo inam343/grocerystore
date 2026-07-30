@@ -58,7 +58,7 @@ const Header = () => {
                 Login
               </Link>
 
-              <span>|</span>
+              <span className="text-black">|</span>
 
               <Link
                 href="/register"
