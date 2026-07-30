@@ -62,7 +62,7 @@ const Header = () => {
 
               <Link
                 href="/register"
-                className="hover:text-green-600 transition-colors"
+                className="hover:text-green-600 text-black transition-colors"
               >
                 Register
               </Link>
