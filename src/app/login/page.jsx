@@ -3,9 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 const Login = () => {
   const router = useRouter();
+  const { reloadUserData } = useCart();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -56,8 +58,11 @@ const Login = () => {
         localStorage.setItem("token", data.token);
       }
 
+      // Reload cart and wishlist for the newly logged-in user
+      reloadUserData();
+
       // Redirect to Home
-      window.location.href = "/";
+      router.push("/");
     } catch (err) {
       console.log(err);
       setError("Unable to connect to server.");
