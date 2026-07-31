@@ -45,12 +45,12 @@ const Header = () => {
         <div className="flex items-center">
           {username ? (
             <div className="flex items-center gap-2 sm:gap-3">
-              <span className="font-bold text-green-600 text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none">
-                Hi, {username}
+              <span className="font-bold text-green-600 text-[10px] sm:text-sm truncate max-w-[60px] sm:max-w-none">
+                {username}
               </span>
               <button
                 onClick={handleLogout}
-                className="text-red-500 hover:text-red-700 text-xs sm:text-sm font-semibold"
+                className="text-red-500 hover:text-red-700 text-[10px] sm:text-sm font-semibold whitespace-nowrap"
               >
                 Logout
               </button>
@@ -99,11 +99,25 @@ const Header = () => {
         <Search />
       </div>
 
-      {/* Mobile dropdown — login/register only (shown when not logged in) */}
-      {menuOpen && !username && (
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
         <div className="md:hidden bg-white border-b px-4 py-4 flex flex-col gap-3 text-sm font-semibold text-gray-700">
-          <Link href="/login" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Login</Link>
-          <Link href="/register" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Register</Link>
+          {username ? (
+            <>
+              <span className="text-green-600">Hi, {username}</span>
+              <button
+                onClick={() => { handleLogout(); setMenuOpen(false); }}
+                className="text-left text-red-500 hover:text-red-700"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Login</Link>
+              <Link href="/register" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Register</Link>
+            </>
+          )}
         </div>
       )}
 
