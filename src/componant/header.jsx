@@ -2,18 +2,18 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { FaHeart, FaShoppingCart } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
 import Navbar from "@/componant/nav";
 import Search from "./search";
 import { useCart } from "@/context/CartContext";
 
 const Header = () => {
   const [username, setUsername] = useState("");
-  const { cartCount } = useCart();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { cartCount, wishlistCount } = useCart();
 
   useEffect(() => {
     const user = localStorage.getItem("user");
-
     if (user) {
       const userData = JSON.parse(user);
       setUsername(userData.username);
@@ -24,78 +24,92 @@ const Header = () => {
     localStorage.removeItem("user");
     window.location.reload();
   };
-  
 
   return (
-    <div className="headerwraper sticky dark:bg-white top-0 z-50">
-      <header className="flex items-center justify-evenly dark:bg-transparent py-3 border-b border-[rgba(0,0,0,0.1)]">
-        <div className="logo">
-          <img src="/logo.png" className="w-[50px] h-[20px]"   alt="logo" />
+    <div className="headerwraper sticky top-0 z-50 bg-white shadow-sm">
+
+      {/* Main Header Row */}
+      <header className="flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 border-b border-[rgba(0,0,0,0.1)]">
+
+        {/* Logo */}
+        <div className="logo flex-shrink-0">
+          <img src="/logo.png" className="w-[60px] h-[24px]" alt="logo" />
         </div>
 
-        <Search />
+        {/* Search — hidden on very small, shown from sm up */}
+        <div className="hidden sm:flex flex-1 mx-4 max-w-[500px]">
+          <Search />
+        </div>
 
-        <div>
+        {/* Auth — desktop shows full, mobile shows username + logout inline */}
+        <div className="flex items-center">
           {username ? (
-            <div className="flex items-center gap-3">
-              <span className="font-bold  text-green-600">
-                Welcome, {username}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="font-bold text-green-600 text-xs sm:text-sm truncate max-w-[80px] sm:max-w-none">
+                Hi, {username}
               </span>
-
               <button
                 onClick={handleLogout}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 text-xs sm:text-sm font-semibold"
               >
                 Logout
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/login"
-                className="hover:text-green-600 text-black transition-colors"
-              >
+            <div className="hidden md:flex items-center gap-2 text-sm">
+              <Link href="/login" className="hover:text-green-600 transition-colors">
                 Login
               </Link>
-
-              <span className="text-black">|</span>
-
-              <Link
-                href="/register"
-                className="hover:text-green-600 text-black transition-colors"
-              >
+              <span>|</span>
+              <Link href="/register" className="hover:text-green-600 transition-colors">
                 Register
               </Link>
             </div>
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Cart + Wishlist icons */}
+        <div className="flex items-center gap-5 ml-4">
           <Link href="/wishlist" className="relative flex">
-            <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white absolute -top-3 -right-3">
-              0
+            <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] absolute -top-3 -right-3">
+              {wishlistCount}
             </span>
-
-            <FaHeart
-              size={20}
-              className="text-gray-900 hover:text-green-500"
-            />
+            <FaHeart size={20} className="text-gray-900 hover:text-green-500" />
           </Link>
 
           <Link href="/cart" className="relative flex">
-            <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white absolute -top-3 -right-3">
+            <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] absolute -top-3 -right-3">
               {cartCount}
             </span>
-
-            <FaShoppingCart
-              size={20}
-              className="text-gray-900 hover:text-green-500"
-            />
+            <FaShoppingCart size={20} className="text-gray-900 hover:text-green-500" />
           </Link>
+
+          {/* Hamburger — only on mobile */}
+          <button
+            className="md:hidden text-gray-700"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+          </button>
         </div>
       </header>
 
+      {/* Mobile search row */}
+      <div className="flex sm:hidden px-4 py-2 border-b border-[rgba(0,0,0,0.07)]">
+        <Search />
+      </div>
+
+      {/* Mobile dropdown — login/register only (shown when not logged in) */}
+      {menuOpen && !username && (
+        <div className="md:hidden bg-white border-b px-4 py-4 flex flex-col gap-3 text-sm font-semibold text-gray-700">
+          <Link href="/login" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Login</Link>
+          <Link href="/register" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Register</Link>
+        </div>
+      )}
+
+      {/* Navbar — always visible on all screen sizes */}
       <Navbar />
+
     </div>
   );
 };
