@@ -4,33 +4,54 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const CartContext = createContext();
 
+// Get the current logged-in user's ID for scoping storage
+const getUserId = () => {
+  try {
+    const user = localStorage.getItem("user");
+    if (user) {
+      const userData = JSON.parse(user);
+      return userData._id || userData.id || userData.username || "guest";
+    }
+  } catch (_) {}
+  return "guest";
+};
+
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [userId, setUserId] = useState("guest");
 
-  // Load cart and wishlist from localStorage on first render
-  useEffect(() => {
-    const storedCart = localStorage.getItem("cartItems");
-    if (storedCart) setCartItems(JSON.parse(storedCart));
+  // Load cart and wishlist for the given user
+  const loadUserData = () => {
+    const uid = getUserId();
+    setUserId(uid);
 
-    const storedWishlist = localStorage.getItem("wishlistItems");
-    if (storedWishlist) setWishlistItems(JSON.parse(storedWishlist));
+    const storedCart = localStorage.getItem(`cartItems_${uid}`);
+    setCartItems(storedCart ? JSON.parse(storedCart) : []);
+
+    const storedWishlist = localStorage.getItem(`wishlistItems_${uid}`);
+    setWishlistItems(storedWishlist ? JSON.parse(storedWishlist) : []);
 
     setLoaded(true);
+  };
+
+  // Initial load
+  useEffect(() => {
+    loadUserData();
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Save cart whenever it changes (per user)
   useEffect(() => {
     if (!loaded) return;
-    localStorage.setItem("cartItems", JSON.stringify(cartItems));
-  }, [cartItems, loaded]);
+    localStorage.setItem(`cartItems_${userId}`, JSON.stringify(cartItems));
+  }, [cartItems, loaded, userId]);
 
-  // Save wishlist to localStorage whenever it changes
+  // Save wishlist whenever it changes (per user)
   useEffect(() => {
     if (!loaded) return;
-    localStorage.setItem("wishlistItems", JSON.stringify(wishlistItems));
-  }, [wishlistItems, loaded]);
+    localStorage.setItem(`wishlistItems_${userId}`, JSON.stringify(wishlistItems));
+  }, [wishlistItems, loaded, userId]);
 
   // Cart functions
   const addToCart = (product) => {
@@ -94,6 +115,7 @@ export function CartProvider({ children }) {
       value={{
         cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount,
         wishlistItems, addToWishlist, removeFromWishlist, isInWishlist, wishlistCount,
+        reloadUserData: loadUserData,
       }}
     >
       {children}

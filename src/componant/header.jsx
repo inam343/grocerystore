@@ -10,7 +10,7 @@ import { useCart } from "@/context/CartContext";
 const Header = () => {
   const [username, setUsername] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const { cartCount, wishlistCount } = useCart();
+  const { cartCount, wishlistCount, reloadUserData } = useCart();
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -22,7 +22,9 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    window.location.reload();
+    localStorage.removeItem("token");
+    setUsername("");
+    reloadUserData();
   };
 
   return (
