@@ -34,7 +34,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch("https://server-production-5112.up.railway.app/api/auth/auth/login", {
+      const response = await fetch("https://server-production-5112.up.railway.app/api/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
