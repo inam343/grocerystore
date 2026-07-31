@@ -10,29 +10,19 @@ import { useCart } from "@/context/CartContext";
 const Header = () => {
   const [username, setUsername] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const { cartCount, wishlistCount, reloadUserData } = useCart();
+  const { cartCount, wishlistCount } = useCart();
 
   useEffect(() => {
-    const syncUser = () => {
-      const user = localStorage.getItem("user");
-      if (user) {
-        const userData = JSON.parse(user);
-        setUsername(userData.username);
-      } else {
-        setUsername("");
-      }
-    };
-
-    syncUser();
-    window.addEventListener("storage", syncUser);
-    return () => window.removeEventListener("storage", syncUser);
+    const user = localStorage.getItem("user");
+    if (user) {
+      const userData = JSON.parse(user);
+      setUsername(userData.username);
+    }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    setUsername("");
-    reloadUserData();
+    window.location.reload();
   };
 
   return (

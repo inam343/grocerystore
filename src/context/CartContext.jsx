@@ -8,71 +8,29 @@ export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState(null);
 
-  // Helper to get current user ID
-  const getUserId = () => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      const userData = JSON.parse(user);
-      return userData._id || userData.id || userData.username || "guest";
-    }
-    return "guest";
-  };
+  // Load cart and wishlist from localStorage on first render
+  useEffect(() => {
+    const storedCart = localStorage.getItem("cartItems");
+    if (storedCart) setCartItems(JSON.parse(storedCart));
 
-  // Load cart and wishlist for current user
-  const loadUserData = () => {
-    const userId = getUserId();
-    setCurrentUserId(userId);
-
-    const cartKey = `cartItems_${userId}`;
-    const wishlistKey = `wishlistItems_${userId}`;
-
-    const storedCart = localStorage.getItem(cartKey);
-    if (storedCart) {
-      setCartItems(JSON.parse(storedCart));
-    } else {
-      setCartItems([]);
-    }
-
-    const storedWishlist = localStorage.getItem(wishlistKey);
-    if (storedWishlist) {
-      setWishlistItems(JSON.parse(storedWishlist));
-    } else {
-      setWishlistItems([]);
-    }
+    const storedWishlist = localStorage.getItem("wishlistItems");
+    if (storedWishlist) setWishlistItems(JSON.parse(storedWishlist));
 
     setLoaded(true);
-  };
-
-  // Load data on mount and listen for storage changes (login/logout)
-  useEffect(() => {
-    loadUserData();
-
-    // Listen for storage events (e.g., login in another tab)
-    const handleStorageChange = (e) => {
-      if (e.key === "user") {
-        loadUserData();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    if (!loaded || !currentUserId) return;
-    const cartKey = `cartItems_${currentUserId}`;
-    localStorage.setItem(cartKey, JSON.stringify(cartItems));
-  }, [cartItems, loaded, currentUserId]);
+    if (!loaded) return;
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems, loaded]);
 
   // Save wishlist to localStorage whenever it changes
   useEffect(() => {
-    if (!loaded || !currentUserId) return;
-    const wishlistKey = `wishlistItems_${currentUserId}`;
-    localStorage.setItem(wishlistKey, JSON.stringify(wishlistItems));
-  }, [wishlistItems, loaded, currentUserId]);
+    if (!loaded) return;
+    localStorage.setItem("wishlistItems", JSON.stringify(wishlistItems));
+  }, [wishlistItems, loaded]);
 
   // Cart functions
   const addToCart = (product) => {
@@ -136,7 +94,6 @@ export function CartProvider({ children }) {
       value={{
         cartItems, addToCart, removeFromCart, updateQuantity, clearCart, cartCount,
         wishlistItems, addToWishlist, removeFromWishlist, isInWishlist, wishlistCount,
-        reloadUserData: loadUserData,
       }}
     >
       {children}
