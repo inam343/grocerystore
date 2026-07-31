@@ -110,7 +110,7 @@ function Footer() {
               <input
                 type="email"
                 placeholder='Enter your email address'
-                className='flex-1 w-full h-[20px] sm:h-12 md:h-12 rounded-lg px-4 bg-white border border-gray-300 outline-none text-sm focus:border-green-500 transition-colors'
+                className='flex-1 w-full h-[40px] sm:h-10 md:h-10 rounded-lg px-4 bg-white border border-gray-300 outline-none text-sm focus:border-green-500 transition-colors'
               />
               <button className='w-full sm:w-auto h-12 px-5 bg-[#02B290] hover:bg-[#029070] text-white text-sm font-semibold rounded-lg transition-colors whitespace-nowrap'>
                 Subscribe
