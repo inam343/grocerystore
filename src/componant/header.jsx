@@ -41,12 +41,12 @@ const Header = () => {
           <Search />
         </div>
 
-        {/* Auth — desktop shows full, mobile shows username + logout inline */}
+        {/* Auth — always visible on all screen sizes */}
         <div className="flex items-center">
           {username ? (
             <div className="flex items-center gap-2 sm:gap-3">
               <span className="font-bold text-green-600 text-[10px] sm:text-sm truncate max-w-[60px] sm:max-w-none">
-                {username}
+                Hi, {username}
               </span>
               <button
                 onClick={handleLogout}
@@ -56,12 +56,12 @@ const Header = () => {
               </button>
             </div>
           ) : (
-            <div className="hidden md:flex items-center gap-2 text-sm">
-              <Link href="/login" className="hover:text-green-600 transition-colors">
+            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-sm">
+              <Link href="/login" className="hover:text-green-600 transition-colors font-medium whitespace-nowrap">
                 Login
               </Link>
-              <span>|</span>
-              <Link href="/register" className="hover:text-green-600 transition-colors">
+              <span className="text-gray-400">|</span>
+              <Link href="/register" className="hover:text-green-600 transition-colors font-medium whitespace-nowrap">
                 Register
               </Link>
             </div>
@@ -99,7 +99,7 @@ const Header = () => {
         <Search />
       </div>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile dropdown menu — nav links */}
       {menuOpen && (
         <div className="md:hidden bg-white border-b px-4 py-4 flex flex-col gap-3 text-sm font-semibold text-gray-700">
           {username ? (
