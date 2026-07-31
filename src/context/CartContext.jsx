@@ -32,7 +32,7 @@ export function CartProvider({ children }) {
     localStorage.setItem("wishlistItems", JSON.stringify(wishlistItems));
   }, [wishlistItems, loaded]);
 
-  // ── Cart functions ──────────────────────────────────────
+  // Cart functions
   const addToCart = (product) => {
     setCartItems((prev) => {
       const id = product._id || product.id;
@@ -67,7 +67,7 @@ export function CartProvider({ children }) {
 
   const cartCount = cartItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-  // ── Wishlist functions ──────────────────────────────────
+  // Wishlist functions
   const addToWishlist = (product) => {
     setWishlistItems((prev) => {
       const id = product._id || product.id;
