@@ -1,6 +1,6 @@
 import React from 'react';
 import { MdDelete, MdEdit } from 'react-icons/md';
-import admproducts from '@/app/(users)/data/admproduct';
+import admproducts from '@/app/(user)/data/admproduct';
 import Link from 'next/link';
 
 export default function ProductTable(props) {
