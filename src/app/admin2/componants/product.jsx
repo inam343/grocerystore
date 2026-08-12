@@ -156,12 +156,15 @@ export default function ProductTable({ tittle }) {
             <tbody>
               {filtered.map((product) => {
                 const id = product._id || product.id;
+                // Images are stored as public-relative paths like /productitems/foo.jpg
+                // They work directly as <img src> in Next.js (served from /public).
+                // Only prepend API_BASE for legacy /uploads paths (old data).
                 const imgSrc = product.image
                   ? product.image.startsWith("/uploads")
                     ? `${API_BASE}${product.image}`
                     : product.image.startsWith("http")
                     ? product.image
-                    : `/productitems/${product.image}`
+                    : product.image // already a public-relative path
                   : "/productitems/image3.png";
 
                 return (

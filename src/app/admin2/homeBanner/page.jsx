@@ -76,9 +76,12 @@ const HomeBanner = () => {
 
   const getImgSrc = (banner) => {
     if (!banner.image) return "/banner/banerimg2.png";
+    // Legacy /uploads path → served from backend (old data before this fix)
     if (banner.image.startsWith("/uploads")) return `${API_BASE}${banner.image}`;
+    // Full URL
     if (banner.image.startsWith("http")) return banner.image;
-    return `/${banner.image}`;
+    // Public-relative path like /catimages/... → works directly
+    return banner.image;
   };
 
   return (

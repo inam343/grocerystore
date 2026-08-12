@@ -76,9 +76,12 @@ const HomeSlides = () => {
 
   const getImgSrc = (slide) => {
     if (!slide.image) return "/slide1.png";
+    // Legacy /uploads path → served from backend (old data before this fix)
     if (slide.image.startsWith("/uploads")) return `${API_BASE}${slide.image}`;
+    // Full URL
     if (slide.image.startsWith("http")) return slide.image;
-    return `/${slide.image}`;
+    // Public-relative path like /productitems/... or /catimages/... → works directly
+    return slide.image;
   };
 
   return (
