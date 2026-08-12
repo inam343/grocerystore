@@ -1,12 +1,12 @@
-import React from 'react'
-import ProductTable from '../../componants/product'
+import React from 'react';
+import ProductTable from '../../componants/product';
 
 const Latestproduct = () => {
   return (
     <div>
-       <ProductTable tittle='Latest Product'/>;
+      <ProductTable tittle="Latest Product" />
     </div>
-  )
-}
+  );
+};
 
-export default Latestproduct
+export default Latestproduct;

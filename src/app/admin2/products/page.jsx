@@ -1,5 +1,5 @@
 import ProductTable from '../componants/product';
 
 export default function ProductsPage() {
-  return <ProductTable tittle='Product'/>;
+  return <ProductTable tittle="Latest Product" />;
 }

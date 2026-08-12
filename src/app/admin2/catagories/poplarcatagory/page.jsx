@@ -1,12 +1,12 @@
-import React from 'react'
-import ProductTable from '../../componants/product'
+import React from 'react';
+import ProductTable from '../../componants/product';
 
 const Popularcatagory = () => {
   return (
     <div>
-      <ProductTable tittle='Poplar Product'/>;
+      <ProductTable tittle="Popular Product" />
     </div>
-  )
-}
+  );
+};
 
-export default Popularcatagory
+export default Popularcatagory;

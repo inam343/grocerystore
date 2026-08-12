@@ -1,12 +1,12 @@
-import React from 'react'
-import ProductTable from '../../componants/product'
+import React from 'react';
+import ProductTable from '../../componants/product';
 
-const Topcatory = () => {
+const TopCategory = () => {
   return (
     <div>
-       <ProductTable tittle='Top Catagory'/>;
+      <ProductTable tittle="Top Catagory" />
     </div>
-  )
-}
+  );
+};
 
-export default Topcatory
+export default TopCategory;
