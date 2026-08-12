@@ -32,9 +32,10 @@ const Productitem = ({ product }) => {
       <Link href="/" className="group">
         <div className="img overflow-hidden outline-none flex justify-center py-2 h-[100px] sm:h-[120px]">
           <img
-            src={product.image}
+            src={product.image || "/productitems/image3.png"}
             alt={product.name}
             className="transition group-hover:scale-110 object-contain h-full"
+            onError={(e) => { e.target.src = "/productitems/image3.png"; }}
           />
         </div>
       </Link>

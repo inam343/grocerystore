@@ -7,28 +7,26 @@ import PopularProduct from "@/componant/Popularproduct";
 import Banner from "@/componant/banner";
 import Productrow from "@/componant/productrow";
 
-import featureproduct from "./data/featureproduct";
-import breakfast from "./data/breakfast";
+const API = "https://server-production-5112.up.railway.app";
 
 export default function Home() {
-  const [latestProducts, setLatestProducts] = useState([]);
-  const [featredProduct, setfeaturedProducts] = useState([]);
-  const [breakfast, setbreakfast] = useState([]);
+  const [latestProducts,   setLatestProducts]   = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [breakfastItems,   setBreakfastItems]   = useState([]);
 
- useEffect(() => {
-  Promise.all([
-    fetch("https://server-production-5112.up.railway.app/api/productrow").then((res) => res.json()),
-    fetch("https://server-production-5112.up.railway.app/api/featuredproduct").then((res) => res.json()),
-    fetch("https://server-production-5112.up.railway.app/api/breakfast").then((res) => res.json())
-  ])
-    .then(([latestData, featuredData, breakfastData]) => {
-      setLatestProducts(latestData);
-      setfeaturedProducts(featuredData);
-      setbreakfast(breakfastData);
-    })
-    .catch((err) => console.log(err));
-}, []);
-
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API}/api/productrow`).then((r) => r.json()),
+      fetch(`${API}/api/featuredproduct`).then((r) => r.json()),
+      fetch(`${API}/api/breakfast`).then((r) => r.json()),
+    ])
+      .then(([latestData, featuredData, breakfastData]) => {
+        setLatestProducts(latestData);
+        setFeaturedProducts(featuredData);
+        setBreakfastItems(breakfastData);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   return (
     <div className="slidewraper bg-[#FAFAFA] p-4">
@@ -37,22 +35,9 @@ export default function Home() {
       <PopularProduct />
       <Banner />
 
-      {/* First ProductRow uses API data */}
-      <Productrow
-        tittle="Latest Product"
-        product={latestProducts}
-      />
-
-      {/* These still use local data */}
-      <Productrow
-        tittle="Featured Product"
-        product={featredProduct}
-      />
-
-      <Productrow
-        tittle="BreakFast & Dairy"
-        product={breakfast}
-      />
+      <Productrow tittle="Latest Product"    product={latestProducts}   />
+      <Productrow tittle="Featured Product"  product={featuredProducts} />
+      <Productrow tittle="BreakFast & Dairy" product={breakfastItems}   />
     </div>
   );
 }
