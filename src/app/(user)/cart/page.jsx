@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import Cartcard from "@/componant/cartcard";
 import { useCart } from "@/context/CartContext";
 
@@ -89,9 +90,12 @@ const AddToCart = () => {
               </div>
             </div>
 
-            <button className="btn-border-g w-full mt-5 text-[13px] font-[600] py-2 rounded-md">
+            <Link
+              href="/checkout"
+              className="btn-border-g w-full mt-5 text-[13px] font-[600] py-2 rounded-md flex items-center justify-center"
+            >
               Proceed to Checkout
-            </button>
+            </Link>
           </div>
         )}
 

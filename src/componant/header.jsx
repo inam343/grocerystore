@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FaHeart, FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaBars, FaTimes, FaUserCircle, FaUser, FaBoxOpen, FaTruck, FaSignOutAlt } from "react-icons/fa";
 import Navbar from "@/componant/nav";
 import Search from "./search";
 import { useCart } from "@/context/CartContext";
@@ -10,7 +10,20 @@ import { useCart } from "@/context/CartContext";
 const Header = () => {
   const [username, setUsername] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
   const { cartCount, wishlistCount, reloadUserData } = useCart();
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const user = localStorage.getItem("user");
@@ -70,8 +83,97 @@ const Header = () => {
           )}
         </div>
 
-        {/* Cart + Wishlist icons */}
+        {/* Cart + Wishlist + Profile icons */}
         <div className="flex items-center gap-5 ml-4">
+
+          {/* Profile icon with dropdown */}
+          <div className="relative" ref={profileRef}>
+            <button
+              onClick={() => setProfileOpen(!profileOpen)}
+              className="flex items-center justify-center focus:outline-none"
+              aria-label="User profile"
+            >
+              <FaUserCircle
+                size={22}
+                className={`transition-colors ${username ? "text-green-600 hover:text-green-700" : "text-gray-700 hover:text-green-500"}`}
+              />
+            </button>
+
+            {/* Profile dropdown */}
+            {profileOpen && (
+              <div className="absolute right-0 top-full mt-2 w-[200px] bg-white rounded-lg shadow-lg border border-gray-100 z-50 py-2">
+                {username ? (
+                  <>
+                    {/* User info header */}
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-xs text-gray-500">Signed in as</p>
+                      <p className="text-sm font-semibold text-green-600 truncate">{username}</p>
+                    </div>
+
+                    <Link
+                      href="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+                    >
+                      <FaUser size={12} className="text-gray-400" />
+                      My Profile
+                    </Link>
+                    <Link
+                      href="/orders"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+                    >
+                      <FaBoxOpen size={12} className="text-gray-400" />
+                      My Orders
+                    </Link>
+                    <Link
+                      href="/checkout"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+                    >
+                      <FaTruck size={12} className="text-gray-400" />
+                      Checkout
+                    </Link>
+                    <Link
+                      href="/wishlist"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+                    >
+                      <FaHeart size={12} className="text-gray-400" />
+                      Wishlist
+                    </Link>
+
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <button
+                        onClick={() => { handleLogout(); setProfileOpen(false); }}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-gray-50 hover:text-red-700 transition-colors"
+                      >
+                        <FaSignOutAlt size={12} />
+                        Logout
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
           <Link href="/wishlist" className="relative flex">
             <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] absolute -top-3 -right-3">
               {wishlistCount}
@@ -106,12 +208,21 @@ const Header = () => {
         <div className="md:hidden bg-white border-b px-4 py-4 flex flex-col gap-3 text-sm font-semibold text-gray-700">
           {username ? (
             <>
-              <span className="text-green-600">Hi, {username}</span>
+              <span className="text-green-600 font-bold">Hi, {username}</span>
+              <Link href="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 hover:text-green-600">
+                <FaUser size={12} /> My Profile
+              </Link>
+              <Link href="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 hover:text-green-600">
+                <FaBoxOpen size={12} /> My Orders
+              </Link>
+              <Link href="/checkout" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 hover:text-green-600">
+                <FaTruck size={12} /> Checkout
+              </Link>
               <button
                 onClick={() => { handleLogout(); setMenuOpen(false); }}
-                className="text-left text-red-500 hover:text-red-700"
+                className="text-left text-red-500 hover:text-red-700 flex items-center gap-2"
               >
-                Logout
+                <FaSignOutAlt size={12} /> Logout
               </button>
             </>
           ) : (
