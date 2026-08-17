@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Asidebar from "./componants/Asidebar";
 import Header from "./componants/Header";
-import "@/app/(user)/globals.css";
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

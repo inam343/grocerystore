@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   FiGrid, FiImage, FiPackage, FiUsers,
-  FiLogOut, FiChevronDown, FiChevronUp, FiX,
+  FiLogOut, FiChevronDown, FiChevronUp, FiX, FiShoppingBag,
 } from "react-icons/fi";
 
 export default function Asidebar({ open, onClose }) {
@@ -97,6 +97,11 @@ export default function Asidebar({ open, onClose }) {
         <Link href="/admin2/products" onClick={onClose} className={linkClass('/admin2/products')}>
           <FiPackage size={20} />
           Products
+        </Link>
+
+        <Link href="/admin2/orders" onClick={onClose} className={linkClass('/admin2/orders')}>
+          <FiShoppingBag size={20} />
+          Orders
         </Link>
 
       </div>
