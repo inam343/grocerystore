@@ -20,9 +20,6 @@ const CheckoutPage = () => {
     email: "",
     phone: "",
     address: "",
-    city: "",
-    state: "",
-    zip: "",
     notes: "",
   });
 
@@ -41,9 +38,6 @@ const CheckoutPage = () => {
           email: userData.email || "",
           phone: userData.phone || "",
           address: userData.address || "",
-          city: userData.city || "",
-          state: userData.state || "",
-          zip: userData.zip || "",
         }));
       }
     } catch (_) {}
@@ -71,7 +65,6 @@ const CheckoutPage = () => {
     if (!form.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!form.phone.trim()) newErrors.phone = "Phone number is required";
     if (!form.address.trim()) newErrors.address = "Address is required";
-    if (!form.city.trim()) newErrors.city = "City is required";
     return newErrors;
   };
 
@@ -125,7 +118,7 @@ const CheckoutPage = () => {
           </p>
           <p className="text-gray-500 text-sm mb-6">
             Your order will be delivered to{" "}
-            <span className="font-medium text-gray-700">{form.address}, {form.city}</span>.
+            <span className="font-medium text-gray-700">{form.address}</span>.
           </p>
           <div className="bg-green-50 border border-green-100 rounded-lg px-5 py-3 text-sm text-gray-600 mb-6 flex items-center justify-center gap-2">
             <FaTruck className="text-green-500" size={16} />
@@ -260,18 +253,18 @@ const CheckoutPage = () => {
                 <h2 className="font-[700] text-[15px] text-gray-800">Delivery Address</h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Street Address */}
-                <div className="sm:col-span-2">
+              <div className="flex flex-col gap-4">
+                {/* Full Address */}
+                <div>
                   <label className="block text-[12px] font-[600] text-gray-600 mb-1">
-                    Street Address <span className="text-red-500">*</span>
+                    Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="address"
                     value={form.address}
                     onChange={handleChange}
-                    placeholder="123 Main Street, Apt 4B"
+                    placeholder="e.g. 123 Main Street, Apt 4B, New York, NY 10001"
                     className={`w-full border rounded-lg px-3 py-2 text-[13px] outline-none focus:border-green-500 transition-colors ${
                       errors.address ? "border-red-400" : "border-gray-200"
                     }`}
@@ -281,58 +274,8 @@ const CheckoutPage = () => {
                   )}
                 </div>
 
-                {/* City */}
-                <div>
-                  <label className="block text-[12px] font-[600] text-gray-600 mb-1">
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={form.city}
-                    onChange={handleChange}
-                    placeholder="New York"
-                    className={`w-full border rounded-lg px-3 py-2 text-[13px] outline-none focus:border-green-500 transition-colors ${
-                      errors.city ? "border-red-400" : "border-gray-200"
-                    }`}
-                  />
-                  {errors.city && (
-                    <p className="text-red-500 text-[11px] mt-1">{errors.city}</p>
-                  )}
-                </div>
-
-                {/* State */}
-                <div>
-                  <label className="block text-[12px] font-[600] text-gray-600 mb-1">
-                    State / Province
-                  </label>
-                  <input
-                    type="text"
-                    name="state"
-                    value={form.state}
-                    onChange={handleChange}
-                    placeholder="NY"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-green-500 transition-colors"
-                  />
-                </div>
-
-                {/* ZIP */}
-                <div>
-                  <label className="block text-[12px] font-[600] text-gray-600 mb-1">
-                    ZIP / Postal Code
-                  </label>
-                  <input
-                    type="text"
-                    name="zip"
-                    value={form.zip}
-                    onChange={handleChange}
-                    placeholder="10001"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-green-500 transition-colors"
-                  />
-                </div>
-
                 {/* Order Notes */}
-                <div className="sm:col-span-2">
+                <div>
                   <label className="block text-[12px] font-[600] text-gray-600 mb-1">
                     Order Notes <span className="text-gray-400 font-normal">(optional)</span>
                   </label>
