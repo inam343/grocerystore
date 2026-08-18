@@ -13,6 +13,7 @@ const CheckoutPage = () => {
   const { cartItems, cartCount, clearCart, updateQuantity, removeFromCart } = useCart();
 
   const [user, setUser] = useState(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -28,23 +29,32 @@ const CheckoutPage = () => {
 
   const [errors, setErrors] = useState({});
 
-  // Auto-fill from localStorage profile
+  // Auth check — redirect to login if not logged in
   useEffect(() => {
     try {
       const stored = localStorage.getItem("user");
-      if (stored) {
-        const userData = JSON.parse(stored);
-        setUser(userData);
-        setForm((prev) => ({
-          ...prev,
-          fullName: userData.fullName || userData.username || "",
-          email: userData.email || "",
-          phone: userData.phone || "",
-          address: userData.address || "",
-        }));
+      if (!stored) {
+        // Save intended destination so login can redirect back
+        localStorage.setItem("redirectAfterLogin", "/checkout");
+        router.replace("/login");
+        return;
       }
-    } catch (_) {}
-  }, []);
+      const userData = JSON.parse(stored);
+      setUser(userData);
+      setForm((prev) => ({
+        ...prev,
+        fullName: userData.fullName || userData.username || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
+        address: userData.address || "",
+      }));
+    } catch (_) {
+      localStorage.setItem("redirectAfterLogin", "/checkout");
+      router.replace("/login");
+      return;
+    }
+    setAuthChecked(true);
+  }, [router]);
 
   const totalPrice = cartItems.reduce(
     (sum, item) => sum + item.price * (item.quantity || 1),
@@ -136,6 +146,15 @@ const CheckoutPage = () => {
       setLoading(false);
     }
   };
+
+  // ── Auth loading / redirect ──────────────────────────────────────────────────
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   // ── Order Placed Success Screen ──────────────────────────────────────────────
   if (orderPlaced) {

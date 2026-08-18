@@ -56,8 +56,10 @@ const Login = () => {
         localStorage.setItem("token", data.token);
       }
 
-      // Redirect to Home
-      window.location.href = "/";
+      // Redirect back to intended page (e.g. checkout), or home
+      const redirect = localStorage.getItem("redirectAfterLogin") || "/";
+      localStorage.removeItem("redirectAfterLogin");
+      window.location.href = redirect;
     } catch (err) {
       console.log(err);
       setError("Unable to connect to server.");
