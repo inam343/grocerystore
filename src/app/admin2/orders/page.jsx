@@ -45,6 +45,7 @@ export default function OrdersPage() {
   const [updatingId, setUpdatingId]     = useState(null);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [fetchError, setFetchError]     = useState("");
+  const [statusError, setStatusError]   = useState("");
 
   // ── Fetch all orders from API ──────────────────────────────────────────────
   const load = useCallback(async () => {
@@ -87,14 +88,32 @@ export default function OrdersPage() {
 
   // ── Update status via API ──────────────────────────────────────────────────
   const handleStatusChange = async (order, newStatus) => {
+    if (updatingId) return; // prevent double-clicks
     setUpdatingId(order._id);
+    setStatusError("");
+
+    // Optimistic update — change UI immediately
+    const previousStatus = order.status;
+    setOrders((prev) =>
+      prev.map((o) => (o._id === order._id ? { ...o, status: newStatus } : o))
+    );
+    if (selectedOrder?._id === order._id) {
+      setSelectedOrder((prev) => ({ ...prev, status: newStatus }));
+    }
+
     try {
       const res = await fetch(`${API_BASE}/api/orders/${order._id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) throw new Error("Update failed");
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `Server error ${res.status}`);
+      }
+
+      // Confirm with server response
       const data = await res.json();
       const updated = data.order;
       setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
@@ -103,6 +122,14 @@ export default function OrdersPage() {
       }
     } catch (err) {
       console.error("Status update error:", err);
+      setStatusError(`Failed to update status: ${err.message}`);
+      // Roll back optimistic update
+      setOrders((prev) =>
+        prev.map((o) => (o._id === order._id ? { ...o, status: previousStatus } : o))
+      );
+      if (selectedOrder?._id === order._id) {
+        setSelectedOrder((prev) => ({ ...prev, status: previousStatus }));
+      }
     } finally {
       setUpdatingId(null);
     }
@@ -187,6 +214,14 @@ export default function OrdersPage() {
           />
         </div>
       </div>
+
+      {/* Status error toast */}
+      {statusError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm font-medium px-4 py-3 rounded-xl mb-4 flex items-center justify-between">
+          <span>⚠️ {statusError}</span>
+          <button onClick={() => setStatusError("")} className="text-red-400 hover:text-red-600 font-bold ml-4">✕</button>
+        </div>
+      )}
 
       {/* Orders table */}
       <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
@@ -283,16 +318,23 @@ export default function OrdersPage() {
 
                   {/* Status dropdown */}
                   <td className="p-4">
-                    <select
-                      value={order.status || "Pending"}
-                      onChange={(e) => handleStatusChange(order, e.target.value)}
-                      disabled={updatingId === order._id}
-                      className={`text-xs font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer outline-none transition-all ${STATUS_STYLE[order.status] || STATUS_STYLE.Pending}`}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={order.status || "Pending"}
+                        onChange={(e) => handleStatusChange(order, e.target.value)}
+                        disabled={updatingId === order._id}
+                        className={`text-xs font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer outline-none transition-all
+                          ${updatingId === order._id ? "opacity-60 cursor-wait" : ""}
+                          ${STATUS_STYLE[order.status] || STATUS_STYLE.Pending}`}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                      {updatingId === order._id && (
+                        <span className="w-3.5 h-3.5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                      )}
+                    </div>
                   </td>
 
                   {/* Actions */}
