@@ -12,8 +12,9 @@ import {
   FaShoppingBag,
 } from "react-icons/fa";
 import { MdPendingActions } from "react-icons/md";
+import { API_BASE } from "@/lib/api";
 
-// Status config — color + icon + label
+// ── Status config ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
   Pending: {
     label: "Pending",
@@ -118,6 +119,10 @@ function TrackingBar({ status }) {
 function OrderCard({ order }) {
   const [expanded, setExpanded] = useState(false);
 
+  const dateStr = order.createdAt
+    ? new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+    : order.date || "—";
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
@@ -125,10 +130,10 @@ function OrderCard({ order }) {
       <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[13px] font-bold text-gray-800">{order.id}</span>
+            <span className="text-[13px] font-bold text-gray-800">{order.orderId}</span>
             <StatusBadge status={order.status} />
           </div>
-          <span className="text-[12px] text-gray-400">Placed on {order.date}</span>
+          <span className="text-[12px] text-gray-400">Placed on {dateStr}</span>
         </div>
 
         <div className="flex items-center gap-4">
@@ -162,7 +167,12 @@ function OrderCard({ order }) {
               {order.items?.map((item, i) => (
                 <div key={i} className="flex items-center gap-3 bg-white rounded-lg px-3 py-2 border border-gray-100">
                   <div className="w-10 h-10 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => { e.target.src = "/productitems/image1.png"; }}
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[12px] font-semibold text-gray-700 truncate">{item.name}</p>
@@ -230,29 +240,59 @@ function OrderCard({ order }) {
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
   const [filter, setFilter] = useState("All");
 
   useEffect(() => {
-    try {
-      const user = localStorage.getItem("user");
-      if (user) {
-        const userData = JSON.parse(user);
+    const fetchOrders = async () => {
+      try {
+        const stored = localStorage.getItem("user");
+        if (!stored) {
+          setLoading(false);
+          return;
+        }
+        const userData = JSON.parse(stored);
         const uid = userData._id || userData.id || userData.username || "guest";
-        const stored = localStorage.getItem(`orders_${uid}`);
-        if (stored) setOrders(JSON.parse(stored));
+
+        const res = await fetch(`${API_BASE}/api/orders/user/${encodeURIComponent(uid)}`);
+        if (!res.ok) throw new Error("Failed to load orders");
+        const data = await res.json();
+        setOrders(data);
+      } catch (err) {
+        console.error(err);
+        setFetchError("Could not load your orders. Please try again later.");
+      } finally {
+        setLoading(false);
       }
-    } catch (_) {}
-    setLoading(false);
+    };
+
+    fetchOrders();
   }, []);
 
   const filters = ["All", "Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
-
   const filtered = filter === "All" ? orders : orders.filter((o) => o.status === filter);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-sm p-10 max-w-[420px] w-full text-center">
+          <p className="text-3xl mb-3">⚠️</p>
+          <p className="text-gray-600 font-semibold mb-4">{fetchError}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-6 py-2 rounded-lg"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -268,12 +308,13 @@ export default function OrdersPage() {
             My Orders
           </h1>
           <p className="text-[13px] text-gray-500 mt-1">
-            {orders.length === 0 ? "You haven't placed any orders yet." : `You have ${orders.length} order${orders.length !== 1 ? "s" : ""}.`}
+            {orders.length === 0
+              ? "You haven't placed any orders yet."
+              : `You have ${orders.length} order${orders.length !== 1 ? "s" : ""}.`}
           </p>
         </div>
 
         {orders.length === 0 ? (
-          // Empty state
           <div className="bg-white rounded-2xl shadow-sm p-12 text-center">
             <FaBoxOpen className="text-gray-300 mx-auto mb-4" size={56} />
             <h2 className="text-[18px] font-bold text-gray-600 mb-2">No orders yet</h2>
@@ -317,7 +358,7 @@ export default function OrdersPage() {
             ) : (
               <div className="flex flex-col gap-4">
                 {filtered.map((order) => (
-                  <OrderCard key={order.id} order={order} />
+                  <OrderCard key={order._id} order={order} />
                 ))}
               </div>
             )}

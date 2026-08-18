@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { FiSearch, FiRefreshCw, FiEye, FiX, FiTruck, FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
+import React, { useEffect, useState, useCallback } from "react";
+import { FiSearch, FiRefreshCw, FiEye, FiX, FiTruck, FiCheckCircle, FiClock, FiXCircle, FiTrash2 } from "react-icons/fi";
 import { MdOutlineReceiptLong } from "react-icons/md";
+import { API_BASE } from "@/lib/api";
 
 // ── Status config ─────────────────────────────────────────────────────────────
 const STATUSES = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
@@ -23,43 +24,6 @@ const STATUS_ICON = {
   Cancelled:  <FiXCircle size={13} />,
 };
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-const getAllOrders = () => {
-  const all = [];
-  try {
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith("orders_")) {
-        const userId = key.replace("orders_", "");
-        const raw = localStorage.getItem(key);
-        if (raw) {
-          const orders = JSON.parse(raw);
-          orders.forEach((o) => all.push({ ...o, _userId: userId }));
-        }
-      }
-    }
-  } catch (_) {}
-  // Sort newest first
-  return all.sort((a, b) => {
-    const idA = parseInt(a.id?.replace("ORD-", "") || "0");
-    const idB = parseInt(b.id?.replace("ORD-", "") || "0");
-    return idB - idA;
-  });
-};
-
-const saveOrderStatus = (orderId, userId, newStatus) => {
-  try {
-    const key = `orders_${userId}`;
-    const raw = localStorage.getItem(key);
-    if (!raw) return;
-    const orders = JSON.parse(raw);
-    const updated = orders.map((o) =>
-      o.id === orderId ? { ...o, status: newStatus } : o
-    );
-    localStorage.setItem(key, JSON.stringify(updated));
-  } catch (_) {}
-};
-
 // ── Summary card ──────────────────────────────────────────────────────────────
 const SummaryCard = ({ label, count, colorClass, icon }) => (
   <div className={`bg-white rounded-xl shadow-sm p-4 flex items-center gap-4 border-l-4 ${colorClass}`}>
@@ -73,22 +37,36 @@ const SummaryCard = ({ label, count, colorClass, icon }) => (
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function OrdersPage() {
-  const [orders, setOrders]         = useState([]);
-  const [filtered, setFiltered]     = useState([]);
-  const [search, setSearch]         = useState("");
+  const [orders, setOrders]             = useState([]);
+  const [filtered, setFiltered]         = useState([]);
+  const [search, setSearch]             = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
+  const [updatingId, setUpdatingId]     = useState(null);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [fetchError, setFetchError]     = useState("");
 
-  const load = () => {
-    const all = getAllOrders();
-    setOrders(all);
-    setFiltered(all);
-  };
+  // ── Fetch all orders from API ──────────────────────────────────────────────
+  const load = useCallback(async () => {
+    setLoadingOrders(true);
+    setFetchError("");
+    try {
+      const res = await fetch(`${API_BASE}/api/orders`);
+      if (!res.ok) throw new Error("Failed to load orders");
+      const data = await res.json();
+      setOrders(data);
+      setFiltered(data);
+    } catch (err) {
+      console.error(err);
+      setFetchError("Could not load orders. Check your connection.");
+    } finally {
+      setLoadingOrders(false);
+    }
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
-  // Filter whenever search or status filter changes
+  // ── Filter whenever search or status changes ───────────────────────────────
   useEffect(() => {
     let result = [...orders];
     if (filterStatus !== "all") {
@@ -98,25 +76,49 @@ export default function OrdersPage() {
       const q = search.toLowerCase();
       result = result.filter(
         (o) =>
-          o.id?.toLowerCase().includes(q) ||
+          o.orderId?.toLowerCase().includes(q) ||
           o.shippingInfo?.fullName?.toLowerCase().includes(q) ||
           o.shippingInfo?.phone?.includes(q) ||
-          o._userId?.toLowerCase().includes(q)
+          o.userId?.toLowerCase().includes(q)
       );
     }
     setFiltered(result);
   }, [search, filterStatus, orders]);
 
-  const handleStatusChange = (order, newStatus) => {
-    setUpdatingId(order.id);
-    saveOrderStatus(order.id, order._userId, newStatus);
-    setOrders((prev) =>
-      prev.map((o) => (o.id === order.id ? { ...o, status: newStatus } : o))
-    );
-    if (selectedOrder?.id === order.id) {
-      setSelectedOrder((prev) => ({ ...prev, status: newStatus }));
+  // ── Update status via API ──────────────────────────────────────────────────
+  const handleStatusChange = async (order, newStatus) => {
+    setUpdatingId(order._id);
+    try {
+      const res = await fetch(`${API_BASE}/api/orders/${order._id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      const data = await res.json();
+      const updated = data.order;
+      setOrders((prev) => prev.map((o) => (o._id === updated._id ? updated : o)));
+      if (selectedOrder?._id === updated._id) {
+        setSelectedOrder(updated);
+      }
+    } catch (err) {
+      console.error("Status update error:", err);
+    } finally {
+      setUpdatingId(null);
     }
-    setTimeout(() => setUpdatingId(null), 400);
+  };
+
+  // ── Delete order via API ───────────────────────────────────────────────────
+  const handleDelete = async (orderId) => {
+    if (!confirm("Delete this order? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/orders/${orderId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Delete failed");
+      setOrders((prev) => prev.filter((o) => o._id !== orderId));
+      if (selectedOrder?._id === orderId) setSelectedOrder(null);
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   // Stats
@@ -188,7 +190,19 @@ export default function OrdersPage() {
 
       {/* Orders table */}
       <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
-        {orders.length === 0 ? (
+        {loadingOrders ? (
+          <div className="py-16 text-center">
+            <div className="w-8 h-8 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-gray-400 text-sm">Loading orders…</p>
+          </div>
+        ) : fetchError ? (
+          <div className="py-16 text-center">
+            <p className="text-red-400 font-medium">{fetchError}</p>
+            <button onClick={load} className="mt-3 text-emerald-600 text-sm font-semibold underline">
+              Try again
+            </button>
+          </div>
+        ) : orders.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-4xl mb-3">📦</p>
             <p className="text-gray-400 font-medium">No orders found yet.</p>
@@ -199,7 +213,7 @@ export default function OrdersPage() {
             <p className="text-gray-400">No orders match your filter.</p>
           </div>
         ) : (
-          <table className="w-full text-sm min-w-[720px]">
+          <table className="w-full text-sm min-w-[760px]">
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Order ID</th>
@@ -209,16 +223,16 @@ export default function OrdersPage() {
                 <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Total</th>
                 <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Date</th>
                 <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Status</th>
-                <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Action</th>
+                <th className="text-left p-4 font-semibold text-gray-500 text-xs uppercase tracking-wide">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((order) => (
-                <tr key={order.id} className="border-b hover:bg-gray-50 transition-colors">
+                <tr key={order._id} className="border-b hover:bg-gray-50 transition-colors">
 
                   {/* Order ID */}
                   <td className="p-4">
-                    <p className="font-bold text-gray-700 text-xs">{order.id}</p>
+                    <p className="font-bold text-gray-700 text-xs">{order.orderId}</p>
                     <p className="text-[11px] text-gray-400 mt-0.5">COD</p>
                   </td>
 
@@ -235,7 +249,7 @@ export default function OrdersPage() {
                     </p>
                   </td>
 
-                  {/* Items count */}
+                  {/* Items */}
                   <td className="p-4">
                     <div className="flex -space-x-2">
                       {(order.items || []).slice(0, 3).map((item, i) => (
@@ -260,34 +274,45 @@ export default function OrdersPage() {
 
                   {/* Date */}
                   <td className="p-4">
-                    <p className="text-xs text-gray-500">{order.date || "—"}</p>
+                    <p className="text-xs text-gray-500">
+                      {order.createdAt
+                        ? new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                        : "—"}
+                    </p>
                   </td>
 
-                  {/* Status badge + dropdown */}
+                  {/* Status dropdown */}
                   <td className="p-4">
-                    <div className="relative">
-                      <select
-                        value={order.status || "Pending"}
-                        onChange={(e) => handleStatusChange(order, e.target.value)}
-                        disabled={updatingId === order.id}
-                        className={`text-xs font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer outline-none transition-all ${STATUS_STYLE[order.status] || STATUS_STYLE.Pending}`}
-                      >
-                        {STATUSES.map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </td>
-
-                  {/* View detail */}
-                  <td className="p-4">
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition-colors"
+                    <select
+                      value={order.status || "Pending"}
+                      onChange={(e) => handleStatusChange(order, e.target.value)}
+                      disabled={updatingId === order._id}
+                      className={`text-xs font-semibold rounded-full px-3 py-1 pr-6 appearance-none cursor-pointer outline-none transition-all ${STATUS_STYLE[order.status] || STATUS_STYLE.Pending}`}
                     >
-                      <FiEye size={14} />
-                      View
-                    </button>
+                      {STATUSES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setSelectedOrder(order)}
+                        className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-800 transition-colors"
+                      >
+                        <FiEye size={14} />
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleDelete(order._id)}
+                        className="flex items-center gap-1 text-xs font-semibold text-red-400 hover:text-red-600 transition-colors"
+                      >
+                        <FiTrash2 size={13} />
+                        Delete
+                      </button>
+                    </div>
                   </td>
 
                 </tr>
@@ -306,7 +331,7 @@ export default function OrdersPage() {
             <div className="flex items-center justify-between p-5 border-b">
               <div>
                 <h2 className="text-lg font-bold text-gray-800">Order Detail</h2>
-                <p className="text-xs text-gray-400 mt-0.5">{selectedOrder.id}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{selectedOrder.orderId}</p>
               </div>
               <button
                 onClick={() => setSelectedOrder(null)}
@@ -411,13 +436,28 @@ export default function OrdersPage() {
                     <span>Payment</span>
                     <span className="font-semibold text-emerald-500">Cash on Delivery</span>
                   </div>
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>Order Date</span>
+                    <span className="font-semibold text-gray-500">
+                      {selectedOrder.createdAt
+                        ? new Date(selectedOrder.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+                        : "—"}
+                    </span>
+                  </div>
                 </div>
               </div>
 
             </div>
 
             {/* Modal footer */}
-            <div className="p-5 border-t flex justify-end">
+            <div className="p-5 border-t flex justify-between items-center">
+              <button
+                onClick={() => handleDelete(selectedOrder._id)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 font-semibold text-sm transition-colors"
+              >
+                <FiTrash2 size={14} />
+                Delete Order
+              </button>
               <button
                 onClick={() => setSelectedOrder(null)}
                 className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold text-sm transition-colors"
@@ -429,7 +469,6 @@ export default function OrdersPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
