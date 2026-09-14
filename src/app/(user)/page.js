@@ -7,7 +7,7 @@ import PopularProduct from "@/componant/Popularproduct";
 import Banner from "@/componant/banner";
 import Productrow from "@/componant/productrow";
 
-const API = "https://server-production-8923.up.railway.app";
+const API = "https://server-production-8923.up.railway.app/api";
 
 export default function Home() {
   const [latestProducts,   setLatestProducts]   = useState([]);
@@ -16,7 +16,7 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}https://server-production-8923.up.railway.app/api/productrow`).then((r) => r.json()),
+      fetch(`${API}/productrow`).then((r) => r.json()),
       fetch(`${API}/api/featuredproduct`).then((r) => r.json()),
       fetch(`${API}/api/breakfast`).then((r) => r.json()),
     ])
