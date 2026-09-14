@@ -27,7 +27,7 @@ const Register = () => {
     setSuccess("");
 
     try {
-      const res = await fetch("https://server-production-5112.up.railway.app/api/auth/register", {
+      const res = await fetch("https://server-production-8923.up.railway.app/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
