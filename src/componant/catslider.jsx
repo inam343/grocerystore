@@ -13,7 +13,7 @@ const Catslider = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch("https://server-production-5112.up.railway.app/api/categories")
+    fetch("https://server-production-8923.up.railway.app/api/categories")
       .then((res) => res.json())
       .then((data) => {
         setCategories(data);
