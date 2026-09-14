@@ -7,7 +7,7 @@ import PopularProduct from "@/componant/Popularproduct";
 import Banner from "@/componant/banner";
 import Productrow from "@/componant/productrow";
 
-const API = "https://server-production-8912.up.railway.app";
+const API = "https://server-production-8914.up.railway.app";
 
 export default function Home() {
   const [latestProducts,   setLatestProducts]   = useState([]);
