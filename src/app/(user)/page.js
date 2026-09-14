@@ -16,7 +16,7 @@ export default function Home() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`${API}/api/productrow`).then((r) => r.json()),
+      fetch(`${API}https://server-production-8923.up.railway.app/api/productrow`).then((r) => r.json()),
       fetch(`${API}/api/featuredproduct`).then((r) => r.json()),
       fetch(`${API}/api/breakfast`).then((r) => r.json()),
     ])
