@@ -157,28 +157,28 @@ export default function OrdersPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="flex flex-wrap gap-3 justify-between items-center mb-5">
+      <div className="flex flex-wrap gap-3 justify-between items-center mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-700 flex items-center gap-2">
-            <MdOutlineReceiptLong size={26} className="text-emerald-500" />
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800 flex items-center gap-2">
+            <MdOutlineReceiptLong size={28} className="text-emerald-500" />
             Order Tracking
           </h1>
-          <p className="text-sm text-gray-400 mt-0.5">
+          <p className="text-sm text-gray-400 mt-1">
             {orders.length} total order{orders.length !== 1 ? "s" : ""} across all users
           </p>
         </div>
         <button
           onClick={load}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-sm transition-colors"
+          className="flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors"
         >
-          <FiRefreshCw size={14} />
+          <FiRefreshCw size={14} className={loadingOrders ? "animate-spin" : ""} />
           Refresh
         </button>
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
-        <SummaryCard label="Pending"    count={counts.Pending    || 0} colorClass="border-yellow-400"  icon="⏳" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+        <SummaryCard label="Pending"    count={counts.Pending    || 0} colorClass="border-amber-400"   icon="⏳" />
         <SummaryCard label="Processing" count={counts.Processing || 0} colorClass="border-blue-400"    icon="🔄" />
         <SummaryCard label="Shipped"    count={counts.Shipped    || 0} colorClass="border-purple-400"  icon="🚚" />
         <SummaryCard label="Delivered"  count={counts.Delivered  || 0} colorClass="border-emerald-400" icon="✅" />
@@ -186,7 +186,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-4 flex flex-wrap gap-3 items-end justify-between">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5 flex flex-wrap gap-3 items-end justify-between">
         <div className="flex flex-wrap gap-3 items-end">
           <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">Status</label>
