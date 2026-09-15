@@ -1,119 +1,194 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  FiGrid, FiImage, FiPackage, FiUsers,
-  FiLogOut, FiChevronDown, FiChevronUp, FiX, FiShoppingBag,
+  FiGrid, FiImage, FiPackage, FiUsers, FiLogOut,
+  FiChevronDown, FiChevronUp, FiX, FiShoppingBag, FiPlusSquare,
 } from "react-icons/fi";
+import { MdOutlineStorefront } from "react-icons/md";
+
+const NAV = [
+  { href: "/admin2/Dashboard", icon: <FiGrid size={18} />, label: "Dashboard" },
+  { href: "/admin2/products",  icon: <FiPackage size={18} />, label: "Products" },
+  { href: "/admin2/orders",    icon: <FiShoppingBag size={18} />, label: "Orders" },
+  { href: "/admin2/users",     icon: <FiUsers size={18} />, label: "Users" },
+];
+
+const SLIDES_SUB = [
+  { href: "/admin2/homeslides", label: "Home Slides" },
+  { href: "/admin2/homeBanner", label: "Banners" },
+  { href: "/admin2/addslides",  label: "Add Slide" },
+];
+
+const CAT_SUB = [
+  { href: "/admin2/catagories/topcatagory",    label: "Top Categories" },
+  { href: "/admin2/catagories/poplarcatagory", label: "Popular Products" },
+  { href: "/admin2/catagories/latestproducts", label: "Latest Products" },
+  { href: "/admin2/catagories/featureproducts",label: "Feature Products" },
+  { href: "/admin2/catagories/breakfast",      label: "Breakfast & Dairy" },
+];
 
 export default function Asidebar({ open, onClose }) {
   const pathname = usePathname();
+  const router   = useRouter();
   const [slidesOpen, setSlidesOpen] = useState(false);
-  const [catOpen, setCatOpen] = useState(false);
+  const [catOpen,    setCatOpen]    = useState(false);
 
-  const linkClass = (href) =>
-    `flex items-center gap-3 px-6 py-3 font-bold text-sm transition-colors ${
-      pathname === href
-        ? 'bg-emerald-50 text-emerald-600 border-r-4 border-emerald-500'
-        : 'text-gray-700 hover:bg-gray-100'
-    }`;
+  const isActive = (href) => pathname === href;
+  const isGroupActive = (items) => items.some((i) => pathname === i.href);
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin");
+    router.replace("/admin2/login");
+  };
 
   return (
-    <aside className={`
-      bg-white w-64 top-0 left-0 fixed border-r shadow-sm overflow-y-auto h-screen flex flex-col z-30
-      transition-transform duration-300
-      ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-    `}>
-
+    <aside
+      className={`
+        fixed top-0 left-0 h-screen w-[240px] z-30
+        bg-[#0f172a] text-slate-300
+        flex flex-col overflow-y-auto
+        transition-transform duration-300 ease-in-out
+        ${open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+      `}
+    >
       {/* Logo */}
-      <div className='flex gap-3 px-6 py-5 items-center border-b justify-between'>
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
-            B
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <Link href="/admin2/Dashboard" className="flex items-center gap-2.5" onClick={onClose}>
+          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg">
+            <MdOutlineStorefront size={18} className="text-white" />
           </div>
-          <h1 className='text-xl font-bold text-gray-800'>BoroBozar</h1>
-        </div>
-        {/* Close button — mobile only */}
-        <button onClick={onClose} className="lg:hidden text-gray-400 hover:text-gray-700">
-          <FiX size={22} />
+          <div>
+            <p className="text-white font-bold text-sm leading-none">BoroBozar</p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Admin Panel</p>
+          </div>
+        </Link>
+        <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white">
+          <FiX size={18} />
         </button>
       </div>
 
       {/* Nav */}
-      <div className='flex flex-col py-4 flex-1'>
+      <nav className="flex-1 py-4 px-3 flex flex-col gap-0.5">
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2 mt-1">
+          Main Menu
+        </p>
 
-        <Link href="/admin2/Dashboard" onClick={onClose} className={linkClass('/admin2/Dashboard')}>
-          <FiGrid size={20} />
-          Dashboard
-        </Link>
+        {/* Static links */}
+        {NAV.map(({ href, icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            onClick={onClose}
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+              isActive(href)
+                ? "bg-emerald-500/20 text-emerald-400 shadow-sm"
+                : "text-slate-400 hover:bg-white/5 hover:text-white"
+            }`}
+          >
+            <span className={isActive(href) ? "text-emerald-400" : "text-slate-500"}>{icon}</span>
+            {label}
+            {isActive(href) && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+          </Link>
+        ))}
+
+        <div className="my-3 border-t border-white/5" />
+        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">
+          Content
+        </p>
 
         {/* Home Slides dropdown */}
         <button
           onClick={() => setSlidesOpen(!slidesOpen)}
-          className="flex items-center justify-between w-full px-6 py-3 font-bold text-sm text-gray-700 hover:bg-gray-100"
+          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            isGroupActive(SLIDES_SUB)
+              ? "bg-emerald-500/20 text-emerald-400"
+              : "text-slate-400 hover:bg-white/5 hover:text-white"
+          }`}
         >
           <span className="flex items-center gap-3">
-            <FiImage size={20} />
+            <FiImage size={18} className={isGroupActive(SLIDES_SUB) ? "text-emerald-400" : "text-slate-500"} />
             Home Slides
           </span>
-          {slidesOpen ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+          {slidesOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </button>
         {slidesOpen && (
-          <div className='flex flex-col pl-14'>
-            <Link href="/admin2/homeslides" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Home Slide</Link>
-            <Link href="/admin2/homeBanner" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Banner</Link>
-            <Link href="/admin2/addslides" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Add Slide</Link>
+          <div className="ml-8 flex flex-col gap-0.5 mt-0.5">
+            {SLIDES_SUB.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  isActive(href) ? "text-emerald-400 bg-emerald-500/10" : "text-slate-500 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         )}
 
         {/* Category dropdown */}
         <button
           onClick={() => setCatOpen(!catOpen)}
-          className="flex items-center justify-between w-full px-6 py-3 font-bold text-sm text-gray-700 hover:bg-gray-100"
+          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            isGroupActive(CAT_SUB)
+              ? "bg-emerald-500/20 text-emerald-400"
+              : "text-slate-400 hover:bg-white/5 hover:text-white"
+          }`}
         >
           <span className="flex items-center gap-3">
-            <FiPackage size={20} />
-            Category
+            <FiPackage size={18} className={isGroupActive(CAT_SUB) ? "text-emerald-400" : "text-slate-500"} />
+            Categories
           </span>
-          {catOpen ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+          {catOpen ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
         </button>
         {catOpen && (
-          <div className='flex flex-col pl-14'>
-            <Link href="/admin2/catagories/topcatagory" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Top Categories</Link>
-            <Link href="/admin2/catagories/poplarcatagory" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Popular Products</Link>
-            <Link href="/admin2/catagories/latestproducts" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Latest Products</Link>
-            <Link href="/admin2/catagories/featureproducts" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Feature Products</Link>
-            <Link href="/admin2/catagories/breakfast" onClick={onClose} className="py-2 text-sm text-gray-500 hover:text-emerald-600">Breakfast & Dairy</Link>
+          <div className="ml-8 flex flex-col gap-0.5 mt-0.5">
+            {CAT_SUB.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  isActive(href) ? "text-emerald-400 bg-emerald-500/10" : "text-slate-500 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         )}
 
-        <Link href="/admin2/users" onClick={onClose} className={linkClass('/admin2/users')}>
-          <FiUsers size={20} />
-          Users
-        </Link>
+        {/* Add Product quick link */}
+        <div className="mt-3">
+          <Link
+            href="/admin2/addproduct"
+            onClick={onClose}
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white transition-all"
+          >
+            <FiPlusSquare size={18} className="text-slate-500" />
+            Add Product
+          </Link>
+        </div>
+      </nav>
 
-        <Link href="/admin2/products" onClick={onClose} className={linkClass('/admin2/products')}>
-          <FiPackage size={20} />
-          Products
-        </Link>
-
-        <Link href="/admin2/orders" onClick={onClose} className={linkClass('/admin2/orders')}>
-          <FiShoppingBag size={20} />
-          Orders
-        </Link>
-
-      </div>
-
-      {/* Logout */}
-      <div className="border-t">
-        <Link href="/" className="flex items-center gap-3 px-6 py-4 font-bold text-emerald-500 hover:bg-gray-100 text-sm">
-          <FiLogOut size={20} />
+      {/* Footer */}
+      <div className="border-t border-white/10 p-3">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
+        >
+          <FiLogOut size={18} />
           Logout
-        </Link>
+        </button>
+        <div className="mt-2 px-3 py-2">
+          <p className="text-[10px] text-slate-600 text-center">BoroBozar Admin v2.0</p>
+        </div>
       </div>
-
     </aside>
   );
 }

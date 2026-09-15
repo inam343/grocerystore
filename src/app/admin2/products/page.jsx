@@ -137,29 +137,29 @@ export default function ProductsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-wrap gap-3 justify-between items-center mb-4 sm:mb-6">
+      <div className="flex flex-wrap gap-3 justify-between items-center mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-700">All Products</h1>
-          <p className="text-sm text-gray-400 mt-0.5">
-            {loading ? "Loading..." : `${filtered.length} of ${products.length} products`}
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800">All Products</h1>
+          <p className="text-sm text-gray-400 mt-1">
+            {loading ? "Loading…" : `${filtered.length} of ${products.length} products across all categories`}
           </p>
         </div>
         <Link href="/admin2/addproduct">
-          <button className="bg-gradient-to-br from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-white px-4 sm:px-6 py-2 rounded-lg text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200">
-            + ADD PRODUCT
+          <button className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg transition-all duration-200">
+            + Add Product
           </button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-3 sm:p-4 mb-4 sm:mb-5 flex flex-wrap gap-3 justify-between items-end">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-5 flex flex-wrap gap-3 justify-between items-end">
         <div className="flex flex-wrap gap-3 items-end">
           <div>
-            <label className="block text-xs font-semibold mb-1 text-gray-600">Category</label>
+            <label className="block text-xs font-semibold mb-1.5 text-gray-500 uppercase tracking-wide">Filter by Category</label>
             <select
               value={filterCat}
               onChange={(e) => setFilterCat(e.target.value)}
-              className="border rounded-md p-2 text-sm w-40"
+              className="border border-gray-200 rounded-xl p-2.5 text-sm w-44 outline-none focus:border-emerald-400 bg-gray-50"
             >
               <option value="all">All Categories</option>
               {COLLECTIONS.map((col) => (
@@ -168,17 +168,20 @@ export default function ProductsPage() {
             </select>
           </div>
         </div>
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border rounded-md p-2 w-full sm:w-56 text-sm"
-        />
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Search products…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border border-gray-200 rounded-xl p-2.5 pl-9 w-full sm:w-60 text-sm outline-none focus:border-emerald-400 bg-gray-50"
+          />
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
         {loading ? (
           <div className="p-10 text-center text-gray-400">Loading all products...</div>
         ) : error ? (

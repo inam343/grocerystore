@@ -1,59 +1,99 @@
 "use client";
 
-import React from 'react';
-import { MdNotifications, MdSearch } from 'react-icons/md';
-import { FiSettings, FiMenu } from 'react-icons/fi';
+import React, { useEffect, useState } from "react";
+import { MdNotifications, MdSearch } from "react-icons/md";
+import { FiMenu, FiSun, FiExternalLink } from "react-icons/fi";
+import Link from "next/link";
 
 export default function Header({ onMenuClick }) {
-  return (
-    <header className="w-full bg-white border-b border-gray-200 px-4 sm:px-6 h-16 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+  const [adminName, setAdminName] = useState("Admin");
+  const [time, setTime] = useState("");
 
-      {/* Left — hamburger (mobile) */}
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("admin");
+      if (stored) {
+        const admin = JSON.parse(stored);
+        setAdminName(admin.username || "Admin");
+      }
+    } catch (_) {}
+
+    const tick = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }));
+    };
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, []);
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  return (
+    <header className="w-full bg-white border-b border-gray-100 px-4 sm:px-6 h-16 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+
+      {/* Left */}
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="lg:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+          className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
         >
-          <FiMenu size={22} className="text-gray-600" />
+          <FiMenu size={20} className="text-gray-600" />
         </button>
-        <span className="font-bold text-gray-800 text-lg lg:hidden">BoroBozar</span>
+
+        <div className="hidden sm:flex flex-col">
+          <p className="text-sm font-bold text-gray-800 leading-none">{greeting}, {adminName} 👋</p>
+          <p className="text-[11px] text-gray-400 mt-0.5">Welcome back to your dashboard</p>
+        </div>
       </div>
 
-      {/* Right — actions */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      {/* Right */}
+      <div className="flex items-center gap-2">
 
-        {/* Search — hidden on small screens */}
-        <div className="hidden sm:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
-          <MdSearch size={18} className="text-gray-400" />
+        {/* Search */}
+        <div className="hidden md:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+          <MdSearch size={16} className="text-gray-400 flex-shrink-0" />
           <input
             type="text"
             placeholder="Search..."
-            className="bg-transparent text-sm text-gray-700 outline-none w-28 md:w-36 placeholder:text-gray-400"
+            className="bg-transparent text-sm text-gray-700 outline-none w-28 lg:w-40 placeholder:text-gray-400"
           />
         </div>
 
+        {/* Visit store */}
+        <Link
+          href="/"
+          target="_blank"
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-100"
+        >
+          <FiExternalLink size={12} />
+          Visit Store
+        </Link>
+
         {/* Notifications */}
-        <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-          <MdNotifications size={22} className="text-gray-500" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+        <button className="relative w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors">
+          <MdNotifications size={20} className="text-gray-500" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
         </button>
 
-        {/* Settings — hidden on mobile */}
-        <button className="hidden sm:flex w-9 h-9 items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
-          <FiSettings size={19} className="text-gray-500" />
-        </button>
+        {/* Time chip */}
+        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+          <FiSun size={13} className="text-amber-500" />
+          <span className="text-xs font-semibold text-slate-600">{time}</span>
+        </div>
 
         {/* Divider */}
-        <div className="hidden sm:block w-px h-6 bg-gray-200" />
+        <div className="w-px h-6 bg-gray-200 hidden sm:block" />
 
-        {/* Admin avatar */}
-        <div className="flex items-center gap-2 cursor-pointer">
-          <div className="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-            A
+        {/* Avatar */}
+        <div className="flex items-center gap-2 cursor-pointer group">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-sm font-bold shadow-sm group-hover:shadow-md transition-shadow">
+            {adminName.charAt(0).toUpperCase()}
           </div>
           <div className="hidden md:block">
-            <p className="text-sm font-semibold text-gray-800 leading-tight">Admin</p>
-            <p className="text-xs text-gray-400">admin@barobozar.com</p>
+            <p className="text-sm font-semibold text-gray-800 leading-tight">{adminName}</p>
+            <p className="text-[10px] text-gray-400">Administrator</p>
           </div>
         </div>
 
