@@ -1,48 +1,81 @@
+"use client";
+
 import Link from "next/link";
-import React from "react";
+import { usePathname } from "next/navigation";
+import React, { useState } from "react";
 import { FaAngleDown } from "react-icons/fa";
 
+const NAV_LINKS = [
+  { href: "/",              label: "Home"      },
+  { href: "/fruits",        label: "Fruits"    },
+  { href: "/counter",       label: "Meats"     },
+  { href: "/breakfast",     label: "Dairy"     },
+  { href: "/productListing",label: "Shop"      },
+];
+
+const MORE_LINKS = [
+  { href: "/fruits",    label: "Fruits"    },
+  { href: "/counter",   label: "Meats"     },
+  { href: "/breakfast", label: "Dairy"     },
+  { href: "/breads",    label: "Bakery"    },
+  { href: "/beverages", label: "Beverages" },
+];
+
 const Navbar = () => {
+  const pathname = usePathname();
+  const [moreOpen, setMoreOpen] = useState(false);
+
   return (
-    <nav className="py-2 bg-white border-b border-[rgba(0,0,0,0.07)]">
-      <div className="flex items-center justify-center flex-wrap gap-4 sm:gap-6 md:gap-8 lg:gap-10 px-4 sm:px-8 md:px-12 min-h-[40px]">
-
-        <Link href="/" className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-800 font-[600] hover:text-green-600 transition-colors">
-          Home
-        </Link>
-
-        <Link href="/fruits" className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-800 font-[600] hover:text-green-600 transition-colors">
-          Fruits
-        </Link>
-
-        <Link href="/counter" className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-800 font-[600] hover:text-green-600 transition-colors">
-          Meats
-        </Link>
-
-        <Link href="/breakfast" className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-800 font-[600] hover:text-green-600 transition-colors">
-          Dairy
-        </Link>
-
-        <Link href="/productListing" className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-800 font-[600] hover:text-green-600 transition-colors">
-          Shop
-        </Link>
+    <nav className="bg-white border-t border-slate-100">
+      <div className="flex items-center justify-center flex-wrap gap-1 px-4 sm:px-6 min-h-[44px]">
+        {NAV_LINKS.map(({ href, label }) => {
+          const active = pathname === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`relative px-4 py-2 text-[13px] font-semibold rounded-full transition-all duration-200 ${
+                active
+                  ? "text-green-700 bg-green-50"
+                  : "text-slate-600 hover:text-green-700 hover:bg-green-50"
+              }`}
+            >
+              {label}
+              {active && (
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-green-600 rounded-full" />
+              )}
+            </Link>
+          );
+        })}
 
         {/* More dropdown */}
-        <div className="relative group">
-          <span className="text-[14px] sm:text-[15px] md:text-[16px] text-gray-800 font-[600] hover:text-green-600 cursor-pointer flex items-center gap-1 transition-colors">
-            More <FaAngleDown size={14} />
-          </span>
+        <div
+          className="relative"
+          onMouseEnter={() => setMoreOpen(true)}
+          onMouseLeave={() => setMoreOpen(false)}
+        >
+          <button className="flex items-center gap-1 px-4 py-2 text-[13px] font-semibold text-slate-600 hover:text-green-700 hover:bg-green-50 rounded-full transition-all duration-200">
+            More
+            <FaAngleDown
+              size={11}
+              className={`transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`}
+            />
+          </button>
 
-          <div className="absolute top-full left-0 bg-white shadow-lg rounded-md overflow-hidden w-[150px] z-50 invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 flex flex-col py-2">
-            <Link href="/" className="px-4 py-2 text-[13px] text-gray-700 font-[600] hover:bg-gray-50 hover:text-green-600">Home</Link>
-            <Link href="/fruits" className="px-4 py-2 text-[13px] text-gray-700 font-[600] hover:bg-gray-50 hover:text-green-600">Fruits</Link>
-            <Link href="/counter" className="px-4 py-2 text-[13px] text-gray-700 font-[600] hover:bg-gray-50 hover:text-green-600">Meats</Link>
-            <Link href="/breakfast" className="px-4 py-2 text-[13px] text-gray-700 font-[600] hover:bg-gray-50 hover:text-green-600">Dairy</Link>
-            <Link href="/breads" className="px-4 py-2 text-[13px] text-gray-700 font-[600] hover:bg-gray-50 hover:text-green-600">Bakery</Link>
-            <Link href="/beverages" className="px-4 py-2 text-[13px] text-gray-700 font-[600] hover:bg-gray-50 hover:text-green-600">Beverages</Link>
-          </div>
+          {moreOpen && (
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 bg-white shadow-xl rounded-xl border border-slate-100 z-50 w-[160px] py-1.5 animate-fadeIn">
+              {MORE_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="block px-4 py-2 text-[13px] font-medium text-slate-600 hover:bg-green-50 hover:text-green-700 transition-colors"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-
       </div>
     </nav>
   );

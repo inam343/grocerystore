@@ -2,7 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FaHeart, FaShoppingCart, FaBars, FaTimes, FaUserCircle, FaUser, FaBoxOpen, FaTruck, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaHeart, FaShoppingCart, FaBars, FaTimes, FaUserCircle,
+  FaUser, FaBoxOpen, FaTruck, FaSignOutAlt,
+} from "react-icons/fa";
 import Navbar from "@/componant/nav";
 import Search from "./search";
 import { useCart } from "@/context/CartContext";
@@ -11,15 +14,20 @@ const Header = () => {
   const [username, setUsername] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const profileRef = useRef(null);
   const { cartCount, wishlistCount, reloadUserData } = useCart();
 
-  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
+      if (profileRef.current && !profileRef.current.contains(e.target))
         setProfileOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -27,10 +35,7 @@ const Header = () => {
 
   useEffect(() => {
     const user = localStorage.getItem("user");
-    if (user) {
-      const userData = JSON.parse(user);
-      setUsername(userData.username);
-    }
+    if (user) setUsername(JSON.parse(user).username || "");
   }, []);
 
   const handleLogout = () => {
@@ -38,115 +43,104 @@ const Header = () => {
     localStorage.removeItem("token");
     setUsername("");
     reloadUserData();
+    setProfileOpen(false);
+    setMenuOpen(false);
   };
 
   return (
-    <div className="headerwraper sticky top-0 z-50 bg-white shadow-sm">
+    <div
+      className={`sticky top-0 z-50 bg-white transition-all duration-300 ${
+        scrolled ? "shadow-lg" : "shadow-sm"
+      }`}
+    >
+      {/* ── Top promo bar ── */}
+      <div className="bg-gradient-to-r from-green-600 to-green-500 text-white text-center text-[11px] sm:text-xs py-1.5 font-medium tracking-wide">
+        🌿 Free delivery on orders over $50 &nbsp;|&nbsp; Fresh products every day 🥦
+      </div>
 
-      {/* Main Header Row */}
-      <header className="flex items-center justify-between px-4 sm:px-6 md:px-10 py-3 border-b border-[rgba(0,0,0,0.1)]">
+      {/* ── Main header row ── */}
+      <header className="flex items-center gap-3 px-4 sm:px-6 md:px-10 py-3">
 
         {/* Logo */}
-        <div className="logo flex-shrink-0">
-          <img src="/logo.png" className="w-[60px] h-[24px]" alt="logo" />
-        </div>
+        <Link href="/" className="flex-shrink-0 flex items-center gap-2 group">
+          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+            <span className="text-white text-base">🌿</span>
+          </div>
+          <img src="/logo.png" className="h-6 w-auto hidden sm:block" alt="logo" />
+        </Link>
 
-        {/* Search — hidden on very small, shown from sm up */}
-        <div className="hidden sm:flex flex-1 mx-4 max-w-[500px]">
+        {/* Search */}
+        <div className="hidden sm:flex flex-1 mx-2 max-w-[520px]">
           <Search />
         </div>
 
-        {/* Auth — always visible on all screen sizes */}
-        <div className="flex items-center">
+        {/* Spacer on mobile */}
+        <div className="flex-1 sm:hidden" />
+
+        {/* Auth text */}
+        <div className="hidden md:flex items-center">
           {username ? (
-            <div className="flex items-center gap-2 sm:gap-3">
-              <span className="font-bold text-green-600 text-[10px] sm:text-sm truncate max-w-[60px] sm:max-w-none">
-                Hi, {username}
+            <div className="flex items-center gap-2">
+              <span className="text-[13px] font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+                Hi, {username} 👋
               </span>
-              <button
-                onClick={handleLogout}
-                className="text-red-500 hover:text-red-700 text-[10px] sm:text-sm font-semibold whitespace-nowrap"
-              >
-                Logout
-              </button>
             </div>
           ) : (
-            <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-sm">
-              <Link href="/login" className="hover:text-green-600 transition-colors font-medium whitespace-nowrap">
+            <div className="flex items-center gap-1 text-[13px] font-medium text-slate-600">
+              <Link href="/login" className="hover:text-green-600 transition-colors px-2 py-1 rounded-md hover:bg-green-50">
                 Login
               </Link>
-              <span className="text-gray-400">|</span>
-              <Link href="/register" className="hover:text-green-600 transition-colors font-medium whitespace-nowrap">
+              <span className="text-slate-300">|</span>
+              <Link href="/register" className="hover:text-green-600 transition-colors px-2 py-1 rounded-md hover:bg-green-50">
                 Register
               </Link>
             </div>
           )}
         </div>
 
-        {/* Cart + Wishlist + Profile icons */}
-        <div className="flex items-center gap-5 ml-4">
+        {/* Icon group */}
+        <div className="flex items-center gap-1 sm:gap-3 ml-1">
 
-          {/* Profile icon with dropdown */}
+          {/* Profile dropdown */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center justify-center focus:outline-none"
-              aria-label="User profile"
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 ${
+                profileOpen ? "bg-green-50 text-green-600" : "hover:bg-slate-50 text-slate-600 hover:text-green-600"
+              }`}
+              aria-label="Profile"
             >
-              <FaUserCircle
-                size={22}
-                className={`transition-colors ${username ? "text-green-600 hover:text-green-700" : "text-gray-700 hover:text-green-500"}`}
-              />
+              <FaUserCircle size={21} />
             </button>
 
-            {/* Profile dropdown */}
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[200px] bg-white rounded-lg shadow-lg border border-gray-100 z-50 py-2">
+              <div className="absolute right-0 top-full mt-2 w-[210px] bg-white rounded-xl shadow-xl border border-slate-100 z-50 py-2 animate-fadeIn">
                 {username ? (
                   <>
-                    {/* User info header */}
-                    <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-xs text-gray-500">Signed in as</p>
-                      <p className="text-sm font-semibold text-green-600 truncate">{username}</p>
+                    <div className="px-4 py-2.5 border-b border-slate-100 mb-1">
+                      <p className="text-[11px] text-slate-400 uppercase tracking-wider font-medium">Signed in as</p>
+                      <p className="text-sm font-bold text-green-600 truncate mt-0.5">{username}</p>
                     </div>
-
-                    <Link
-                      href="/profile"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
-                    >
-                      <FaUser size={12} className="text-gray-400" />
-                      My Profile
-                    </Link>
-                    <Link
-                      href="/orders"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
-                    >
-                      <FaBoxOpen size={12} className="text-gray-400" />
-                      My Orders
-                    </Link>
-                    <Link
-                      href="/checkout"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
-                    >
-                      <FaTruck size={12} className="text-gray-400" />
-                      Checkout
-                    </Link>
-                    <Link
-                      href="/wishlist"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
-                    >
-                      <FaHeart size={12} className="text-gray-400" />
-                      Wishlist
-                    </Link>
-
-                    <div className="border-t border-gray-100 mt-1 pt-1">
+                    {[
+                      { href: "/profile",   icon: <FaUser size={12} />,    label: "My Profile" },
+                      { href: "/orders",    icon: <FaBoxOpen size={12} />, label: "My Orders"  },
+                      { href: "/checkout",  icon: <FaTruck size={12} />,   label: "Checkout"   },
+                      { href: "/wishlist",  icon: <FaHeart size={12} />,   label: "Wishlist"   },
+                    ].map(({ href, icon, label }) => (
+                      <Link
+                        key={href}
+                        href={href}
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-slate-600 hover:bg-green-50 hover:text-green-700 transition-colors"
+                      >
+                        <span className="text-slate-400">{icon}</span>
+                        {label}
+                      </Link>
+                    ))}
+                    <div className="border-t border-slate-100 mt-1 pt-1">
                       <button
-                        onClick={() => { handleLogout(); setProfileOpen(false); }}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-gray-50 hover:text-red-700 transition-colors"
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 transition-colors"
                       >
                         <FaSignOutAlt size={12} />
                         Logout
@@ -155,18 +149,12 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Link
-                      href="/login"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
-                    >
+                    <Link href="/login" onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-[13px] text-slate-600 hover:bg-green-50 hover:text-green-700 transition-colors">
                       Login
                     </Link>
-                    <Link
-                      href="/register"
-                      onClick={() => setProfileOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-green-600 transition-colors"
-                    >
+                    <Link href="/register" onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-[13px] text-slate-600 hover:bg-green-50 hover:text-green-700 transition-colors">
                       Register
                     </Link>
                   </>
@@ -174,69 +162,91 @@ const Header = () => {
               </div>
             )}
           </div>
-          <Link href="/wishlist" className="relative flex">
-            <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] absolute -top-3 -right-3">
-              {wishlistCount}
-            </span>
-            <FaHeart size={20} className="text-gray-900 hover:text-green-500" />
+
+          {/* Wishlist */}
+          <Link href="/wishlist" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors group">
+            <FaHeart size={19} className="text-slate-500 group-hover:text-red-500 transition-colors" />
+            {wishlistCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4.5 h-4.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none px-1">
+                {wishlistCount}
+              </span>
+            )}
           </Link>
 
-          <Link href="/cart" className="relative flex">
-            <span className="bg-red-600 w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] absolute -top-3 -right-3">
-              {cartCount}
-            </span>
-            <FaShoppingCart size={20} className="text-gray-900 hover:text-green-500" />
+          {/* Cart */}
+          <Link href="/cart" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-green-50 transition-colors group">
+            <FaShoppingCart size={19} className="text-slate-500 group-hover:text-green-600 transition-colors" />
+            {cartCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-green-600 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none px-1">
+                {cartCount}
+              </span>
+            )}
           </Link>
 
-          {/* Hamburger — only on mobile */}
+          {/* Hamburger — mobile only */}
           <button
-            className="md:hidden text-gray-700"
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-600"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            {menuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+            {menuOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
           </button>
         </div>
       </header>
 
-      {/* Mobile search row */}
-      <div className="flex sm:hidden px-4 py-2 border-b border-[rgba(0,0,0,0.07)]">
+      {/* Mobile search */}
+      <div className="flex sm:hidden px-4 pb-2.5">
         <Search />
       </div>
 
-      {/* Mobile dropdown menu — nav links */}
+      {/* Mobile drawer */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-b px-4 py-4 flex flex-col gap-3 text-sm font-semibold text-gray-700">
+        <div className="md:hidden bg-white border-t border-slate-100 px-4 py-4 flex flex-col gap-1 animate-fadeInUp shadow-lg">
           {username ? (
             <>
-              <span className="text-green-600 font-bold">Hi, {username}</span>
-              <Link href="/profile" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 hover:text-green-600">
-                <FaUser size={12} /> My Profile
-              </Link>
-              <Link href="/orders" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 hover:text-green-600">
-                <FaBoxOpen size={12} /> My Orders
-              </Link>
-              <Link href="/checkout" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 hover:text-green-600">
-                <FaTruck size={12} /> Checkout
-              </Link>
+              <div className="px-3 py-2 mb-1 bg-green-50 rounded-lg">
+                <p className="text-[11px] text-slate-400 font-medium">Signed in as</p>
+                <p className="text-sm font-bold text-green-700">{username}</p>
+              </div>
+              {[
+                { href: "/profile",  icon: <FaUser size={13} />,    label: "My Profile" },
+                { href: "/orders",   icon: <FaBoxOpen size={13} />, label: "My Orders"  },
+                { href: "/checkout", icon: <FaTruck size={13} />,   label: "Checkout"   },
+                { href: "/wishlist", icon: <FaHeart size={13} />,   label: "Wishlist"   },
+              ].map(({ href, icon, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-600 hover:bg-green-50 hover:text-green-700 rounded-lg transition-colors font-medium"
+                >
+                  <span className="text-slate-400">{icon}</span>
+                  {label}
+                </Link>
+              ))}
               <button
-                onClick={() => { handleLogout(); setMenuOpen(false); }}
-                className="text-left text-red-500 hover:text-red-700 flex items-center gap-2"
+                onClick={handleLogout}
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors font-medium mt-1"
               >
-                <FaSignOutAlt size={12} /> Logout
+                <FaSignOutAlt size={13} /> Logout
               </button>
             </>
           ) : (
-            <>
-              <Link href="/login" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Login</Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)} className="hover:text-green-600">Register</Link>
-            </>
+            <div className="flex gap-3">
+              <Link href="/login" onClick={() => setMenuOpen(false)}
+                className="flex-1 text-center py-2.5 text-sm font-semibold text-green-700 bg-green-50 rounded-lg hover:bg-green-100 transition-colors">
+                Login
+              </Link>
+              <Link href="/register" onClick={() => setMenuOpen(false)}
+                className="flex-1 text-center py-2.5 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
+                Register
+              </Link>
+            </div>
           )}
         </div>
       )}
 
-      {/* Navbar — always visible on all screen sizes */}
+      {/* Navbar always visible */}
       <Navbar />
-
     </div>
   );
 };

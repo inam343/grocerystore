@@ -3,8 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaUserCircle, FaMapMarkerAlt, FaPhoneAlt, FaTruck, FaCheckCircle } from "react-icons/fa";
-import { MdEmail } from "react-icons/md";
+import {
+  FaUserCircle, FaMapMarkerAlt, FaPhoneAlt, FaTruck,
+  FaCheckCircle, FaShoppingBag, FaTag, FaLock,
+} from "react-icons/fa";
+import { MdEmail, MdNotes } from "react-icons/md";
 import { useCart } from "@/context/CartContext";
 import { API_BASE } from "@/lib/api";
 
@@ -18,23 +21,13 @@ const CheckoutPage = () => {
   const [placedOrder, setPlacedOrder] = useState(null);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState("");
-
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    notes: "",
-  });
-
+  const [form, setForm] = useState({ fullName: "", email: "", phone: "", address: "", notes: "" });
   const [errors, setErrors] = useState({});
 
-  // Auth check — redirect to login if not logged in
   useEffect(() => {
     try {
       const stored = localStorage.getItem("user");
       if (!stored) {
-        // Save intended destination so login can redirect back
         localStorage.setItem("redirectAfterLogin", "/checkout");
         router.replace("/login");
         return;
@@ -48,7 +41,7 @@ const CheckoutPage = () => {
         phone: userData.phone || "",
         address: userData.address || "",
       }));
-    } catch (_) {
+    } catch {
       localStorage.setItem("redirectAfterLogin", "/checkout");
       router.replace("/login");
       return;
@@ -56,17 +49,11 @@ const CheckoutPage = () => {
     setAuthChecked(true);
   }, [router]);
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * (item.quantity || 1),
-    0
-  );
-  const totalOldPrice = cartItems.reduce(
-    (sum, item) => sum + (item.oldPrice || item.price) * (item.quantity || 1),
-    0
-  );
-  const totalSavings = totalOldPrice - totalPrice;
-  const deliveryFee = totalPrice >= 50 ? 0 : 5;
-  const grandTotal = totalPrice + deliveryFee;
+  const totalPrice    = cartItems.reduce((s, i) => s + i.price * (i.quantity || 1), 0);
+  const totalOldPrice = cartItems.reduce((s, i) => s + (i.oldPrice || i.price) * (i.quantity || 1), 0);
+  const totalSavings  = totalOldPrice - totalPrice;
+  const deliveryFee   = totalPrice >= 50 ? 0 : 5;
+  const grandTotal    = totalPrice + deliveryFee;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -75,233 +62,190 @@ const CheckoutPage = () => {
   };
 
   const validate = () => {
-    const newErrors = {};
-    if (!form.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!form.phone.trim()) newErrors.phone = "Phone number is required";
-    if (!form.address.trim()) newErrors.address = "Address is required";
-    return newErrors;
+    const e = {};
+    if (!form.fullName.trim()) e.fullName = "Full name is required";
+    if (!form.phone.trim())    e.phone    = "Phone number is required";
+    if (!form.address.trim())  e.address  = "Delivery address is required";
+    return e;
   };
 
   const handlePlaceOrder = async () => {
-    if (cartItems.length === 0) return;
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
+    if (!cartItems.length) return;
+    const ve = validate();
+    if (Object.keys(ve).length) { setErrors(ve); return; }
     setLoading(true);
     setApiError("");
-
-    const uid = user?._id || user?.id || user?.username || "guest";
+    const uid     = user?._id || user?.id || user?.username || "guest";
     const orderId = `ORD-${Date.now()}`;
-
-    const orderPayload = {
-      orderId,
-      userId: uid,
-      shippingInfo: { ...form },
+    const payload = {
+      orderId, userId: uid, shippingInfo: { ...form },
       items: cartItems.map((item) => ({
-        _id:      item._id || item.id || "",
-        name:     item.name,
-        price:    item.price,
-        oldPrice: item.oldPrice,
-        quantity: item.quantity || 1,
-        image:    item.image,
-        brand:    item.brand,
-        category: item.category,
+        _id: item._id || item.id || "", name: item.name, price: item.price,
+        oldPrice: item.oldPrice, quantity: item.quantity || 1,
+        image: item.image, brand: item.brand, category: item.category,
       })),
-      paymentMethod: "Cash on Delivery",
-      totalPrice,
-      deliveryFee,
-      grandTotal,
+      paymentMethod: "Cash on Delivery", totalPrice, deliveryFee, grandTotal,
     };
-
     try {
-      const res = await fetch(`${API_BASE}/api/orders`, {
+      const res  = await fetch(`${API_BASE}/api/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderPayload),
+        body: JSON.stringify(payload),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
-        // If it's a duplicate (already saved), treat as success
-        if (res.status === 409 && data.order) {
-          clearCart();
-          setPlacedOrder(data.order);
-          setOrderPlaced(true);
-          return;
-        }
+        if (res.status === 409 && data.order) { clearCart(); setPlacedOrder(data.order); setOrderPlaced(true); return; }
         throw new Error(data.message || "Failed to place order");
       }
-
-      clearCart();
-      setPlacedOrder(data.order);
-      setOrderPlaced(true);
+      clearCart(); setPlacedOrder(data.order); setOrderPlaced(true);
     } catch (err) {
-      console.error("Place order error:", err);
       setApiError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // ── Auth loading / redirect ──────────────────────────────────────────────────
-  if (!authChecked) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  /* ── Loading ── */
+  if (!authChecked) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 
-  // ── Order Placed Success Screen ──────────────────────────────────────────────
-  if (orderPlaced) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center px-4 py-12">
-        <div className="bg-white rounded-2xl shadow-md p-10 max-w-[480px] w-full text-center">
-          <FaCheckCircle className="text-green-500 mx-auto mb-4" size={64} />
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Order Placed!</h1>
-          <p className="text-gray-500 text-sm mb-1">
-            Thank you, <span className="font-semibold text-green-600">{form.fullName}</span>!
-          </p>
-          <p className="text-gray-500 text-sm mb-1">
-            Order ID:{" "}
-            <span className="font-mono font-semibold text-gray-700">
-              {placedOrder?.orderId || "—"}
-            </span>
-          </p>
-          <p className="text-gray-500 text-sm mb-6">
-            Your order will be delivered to{" "}
-            <span className="font-medium text-gray-700">{form.address}</span>.
-          </p>
-          <div className="bg-green-50 border border-green-100 rounded-lg px-5 py-3 text-sm text-gray-600 mb-6 flex items-center justify-center gap-2">
-            <FaTruck className="text-green-500" size={16} />
-            Payment: <span className="font-semibold text-green-700 ml-1">Cash on Delivery</span>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/orders"
-              className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors"
-            >
-              View My Orders
-            </Link>
-            <Link
-              href="/"
-              className="border border-gray-300 hover:border-green-500 hover:text-green-600 text-sm font-semibold px-6 py-2 rounded-lg transition-colors"
-            >
-              Continue Shopping
-            </Link>
-          </div>
+  /* ── Success ── */
+  if (orderPlaced) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-10 max-w-[500px] w-full text-center animate-fadeInUp">
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+          <FaCheckCircle className="text-green-500" size={40} />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-800 mb-1">Order Placed!</h1>
+        <p className="text-slate-500 text-sm mb-1">
+          Thank you, <span className="font-semibold text-green-600">{form.fullName}</span>!
+        </p>
+        <p className="text-slate-400 text-sm mb-1">
+          Order ID: <span className="font-mono font-semibold text-slate-700">{placedOrder?.orderId || "—"}</span>
+        </p>
+        <p className="text-slate-400 text-sm mb-6">
+          Delivering to <span className="font-medium text-slate-600">{form.address}</span>
+        </p>
+        <div className="bg-green-50 border border-green-100 rounded-xl px-5 py-3 text-sm text-green-700 mb-6 flex items-center justify-center gap-2 font-medium">
+          <FaTruck size={14} /> Payment: Cash on Delivery
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Link href="/orders" className="btn-primary py-3 text-sm">View My Orders</Link>
+          <Link href="/" className="btn-outline py-3 text-sm">Continue Shopping</Link>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 
-  // ── Empty Cart Guard ─────────────────────────────────────────────────────────
-  if (cartItems.length === 0) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center px-4">
-        <div className="bg-white rounded-2xl shadow-md p-10 max-w-[420px] w-full text-center">
-          <p className="text-4xl mb-4">🛒</p>
-          <h2 className="text-xl font-bold text-gray-700 mb-2">Your cart is empty</h2>
-          <p className="text-gray-400 text-sm mb-6">Add items before checking out.</p>
-          <Link
-            href="/productListing"
-            className="bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-6 py-2 rounded-lg transition-colors"
-          >
-            Shop Now
-          </Link>
+  /* ── Empty cart ── */
+  if (!cartItems.length) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+      <div className="bg-white rounded-2xl shadow-xl p-10 max-w-[420px] w-full text-center">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <FaShoppingBag size={28} className="text-slate-300" />
         </div>
+        <h2 className="text-lg font-bold text-slate-700 mb-2">Your cart is empty</h2>
+        <p className="text-slate-400 text-sm mb-6">Add items before checking out.</p>
+        <Link href="/productListing" className="btn-primary px-8 py-3">Shop Now</Link>
       </div>
-    );
-  }
+    </div>
+  );
 
-  // ── Checkout Form ────────────────────────────────────────────────────────────
+  /* ── Main checkout ── */
+  const inputCls = (field) =>
+    `input-field pl-10 ${errors[field] ? "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]" : ""}`;
+
   return (
-    <div className="min-h-screen bg-[#FAFAFA] py-8 px-4 sm:px-6 md:px-10">
+    <div className="bg-slate-50 min-h-screen py-8 px-4 sm:px-6 md:px-10">
       <div className="max-w-[1100px] mx-auto">
-        <h1 className="text-[22px] sm:text-[26px] font-bold text-gray-800 mb-6">Checkout</h1>
+
+        {/* Title */}
+        <div className="mb-6 flex items-center gap-3">
+          <div className="w-9 h-9 bg-green-100 rounded-xl flex items-center justify-center">
+            <FaShoppingBag size={16} className="text-green-600" />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Checkout</h1>
+        </div>
+
+        {/* Step indicator */}
+        <div className="flex items-center gap-2 mb-7 text-xs font-semibold">
+          {["Cart", "Shipping", "Payment", "Confirm"].map((step, i) => (
+            <React.Fragment key={step}>
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${
+                i === 1 ? "bg-green-600 text-white" : i < 1 ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"
+              }`}>
+                <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                  i === 1 ? "bg-white/30" : i < 1 ? "bg-green-200 text-green-800" : "bg-slate-200 text-slate-400"
+                }`}>{i + 1}</span>
+                {step}
+              </div>
+              {i < 3 && <div className="flex-1 h-px bg-slate-200" />}
+            </React.Fragment>
+          ))}
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
 
-          {/* ── Left: Shipping Form ── */}
+          {/* ── Left ── */}
           <div className="flex flex-col gap-5">
 
-            {/* Shipping info card */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h2 className="text-[15px] font-bold text-gray-700 mb-4 flex items-center gap-2">
-                <FaMapMarkerAlt className="text-green-500" size={15} />
+            {/* Shipping info */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h2 className="text-[15px] font-bold text-slate-700 mb-5 flex items-center gap-2">
+                <span className="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center">
+                  <FaMapMarkerAlt size={13} className="text-green-600" />
+                </span>
                 Shipping Information
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Full Name */}
                 <div className="sm:col-span-2">
-                  <label className="text-[12px] font-semibold text-gray-600 mb-1 block">
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                     Full Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <FaUserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                    <input
-                      name="fullName"
-                      value={form.fullName}
-                      onChange={handleChange}
-                      placeholder="John Doe"
-                      className={`w-full pl-9 pr-4 py-2.5 text-sm border rounded-lg outline-none focus:border-green-400 transition-colors ${errors.fullName ? "border-red-400" : "border-gray-200"}`}
-                    />
+                    <FaUserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                    <input name="fullName" value={form.fullName} onChange={handleChange} placeholder="John Doe" className={inputCls("fullName")} />
                   </div>
                   {errors.fullName && <p className="text-red-500 text-[11px] mt-1">{errors.fullName}</p>}
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="text-[12px] font-semibold text-gray-600 mb-1 block">Email</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Email</label>
                   <div className="relative">
-                    <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                    <input
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="you@example.com"
-                      className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-green-400 transition-colors"
-                    />
+                    <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+                    <input name="email" value={form.email} onChange={handleChange} placeholder="you@example.com" className="input-field pl-10" />
                   </div>
                 </div>
 
                 {/* Phone */}
                 <div>
-                  <label className="text-[12px] font-semibold text-gray-600 mb-1 block">
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                     Phone <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <FaPhoneAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
-                    <input
-                      name="phone"
-                      value={form.phone}
-                      onChange={handleChange}
-                      placeholder="+1 234 567 8900"
-                      className={`w-full pl-9 pr-4 py-2.5 text-sm border rounded-lg outline-none focus:border-green-400 transition-colors ${errors.phone ? "border-red-400" : "border-gray-200"}`}
-                    />
+                    <FaPhoneAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={12} />
+                    <input name="phone" value={form.phone} onChange={handleChange} placeholder="+1 234 567 8900" className={inputCls("phone")} />
                   </div>
                   {errors.phone && <p className="text-red-500 text-[11px] mt-1">{errors.phone}</p>}
                 </div>
 
                 {/* Address */}
                 <div className="sm:col-span-2">
-                  <label className="text-[12px] font-semibold text-gray-600 mb-1 block">
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">
                     Delivery Address <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400" size={13} />
+                    <FaMapMarkerAlt className="absolute left-3 top-3 text-slate-400" size={13} />
                     <textarea
-                      name="address"
-                      value={form.address}
-                      onChange={handleChange}
-                      rows={2}
+                      name="address" value={form.address} onChange={handleChange} rows={2}
                       placeholder="Street, City, State, ZIP"
-                      className={`w-full pl-9 pr-4 py-2.5 text-sm border rounded-lg outline-none focus:border-green-400 transition-colors resize-none ${errors.address ? "border-red-400" : "border-gray-200"}`}
+                      className={`input-field pl-10 resize-none ${errors.address ? "border-red-400" : ""}`}
                     />
                   </div>
                   {errors.address && <p className="text-red-500 text-[11px] mt-1">{errors.address}</p>}
@@ -309,120 +253,100 @@ const CheckoutPage = () => {
 
                 {/* Notes */}
                 <div className="sm:col-span-2">
-                  <label className="text-[12px] font-semibold text-gray-600 mb-1 block">Order Notes (optional)</label>
-                  <textarea
-                    name="notes"
-                    value={form.notes}
-                    onChange={handleChange}
-                    rows={2}
-                    placeholder="E.g. leave at the door, ring the bell…"
-                    className="w-full px-4 py-2.5 text-sm border border-gray-200 rounded-lg outline-none focus:border-green-400 transition-colors resize-none"
-                  />
+                  <label className="block text-xs font-semibold text-slate-600 mb-1.5">Order Notes (optional)</label>
+                  <div className="relative">
+                    <MdNotes className="absolute left-3 top-3 text-slate-400" size={15} />
+                    <textarea name="notes" value={form.notes} onChange={handleChange} rows={2}
+                      placeholder="E.g. leave at the door, ring the bell…"
+                      className="input-field pl-10 resize-none" />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Payment method card */}
-            <div className="bg-white rounded-2xl shadow-sm p-6">
-              <h2 className="text-[15px] font-bold text-gray-700 mb-3 flex items-center gap-2">
-                <FaTruck className="text-green-500" size={15} />
+            {/* Payment method */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <h2 className="text-[15px] font-bold text-slate-700 mb-4 flex items-center gap-2">
+                <span className="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center">
+                  <FaTruck size={13} className="text-green-600" />
+                </span>
                 Payment Method
               </h2>
-              <div className="flex items-center gap-3 border border-green-200 bg-green-50 rounded-xl px-4 py-3">
-                <div className="w-4 h-4 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
-                  <div className="w-2 h-2 rounded-full bg-green-500" />
+              <label className="flex items-center gap-3 border-2 border-green-200 bg-green-50 rounded-xl px-4 py-3.5 cursor-pointer">
+                <div className="w-5 h-5 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                  <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-green-700">Cash on Delivery</p>
-                  <p className="text-[11px] text-green-600">Pay when your order arrives</p>
+                  <p className="text-xs text-green-500 mt-0.5">Pay when your order arrives at your door</p>
                 </div>
-              </div>
+                <FaTruck className="text-green-400 ml-auto" size={18} />
+              </label>
             </div>
           </div>
 
-          {/* ── Right: Order Summary ── */}
+          {/* ── Right: Order summary ── */}
           <div className="flex flex-col gap-4">
-            <div className="bg-white rounded-2xl shadow-sm p-5 sticky top-4">
-              <h2 className="text-[15px] font-bold text-gray-700 mb-4">Order Summary</h2>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 lg:sticky lg:top-[140px]">
+              <h2 className="text-[15px] font-bold text-slate-700 mb-4 flex items-center gap-2">
+                <FaShoppingBag size={14} className="text-green-600" />
+                Order Summary
+                <span className="ml-auto text-xs text-slate-400 font-normal">{cartCount} items</span>
+              </h2>
 
               {/* Items list */}
-              <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-1 mb-4">
-                {cartItems.map((item) => {
-                  const id = item._id || item.id;
-                  return (
-                    <div key={id} className="flex items-center gap-3">
-                      <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-contain" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[12px] font-semibold text-gray-700 truncate">{item.name}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <button
-                            onClick={() => updateQuantity(id, (item.quantity || 1) - 1)}
-                            className="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold flex items-center justify-center"
-                          >−</button>
-                          <span className="text-[12px] font-semibold text-gray-700">{item.quantity || 1}</span>
-                          <button
-                            onClick={() => updateQuantity(id, (item.quantity || 1) + 1)}
-                            className="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold flex items-center justify-center"
-                          >+</button>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end flex-shrink-0">
-                        <p className="text-[13px] font-bold text-gray-800">
-                          ${(item.price * (item.quantity || 1)).toFixed(2)}
-                        </p>
-                        <button
-                          onClick={() => removeFromCart(id)}
-                          className="text-[10px] text-red-400 hover:text-red-600 mt-0.5"
-                        >
-                          Remove
-                        </button>
-                      </div>
+              <div className="flex flex-col gap-2.5 max-h-[260px] overflow-y-auto pr-1 mb-4">
+                {cartItems.map((item) => (
+                  <div key={item._id || item.id} className="flex items-center gap-3">
+                    <div className="w-11 h-11 bg-slate-50 rounded-lg overflow-hidden flex-shrink-0">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-contain p-1"
+                        onError={(e) => { e.target.src = "/productitems/image1.png"; }} />
                     </div>
-                  );
-                })}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-slate-700 truncate">{item.name}</p>
+                      <p className="text-[11px] text-slate-400">Qty: {item.quantity || 1}</p>
+                    </div>
+                    <p className="text-[13px] font-bold text-slate-700 flex-shrink-0">
+                      ${(item.price * (item.quantity || 1)).toFixed(2)}
+                    </p>
+                  </div>
+                ))}
               </div>
 
               {/* Price breakdown */}
-              <div className="border-t border-gray-100 pt-3 flex flex-col gap-2 text-sm">
-                <div className="flex justify-between text-gray-500">
-                  <span>Subtotal ({cartCount} items)</span>
-                  <span className="font-semibold text-gray-700">${totalPrice.toFixed(2)}</span>
+              <div className="border-t border-slate-100 pt-4 flex flex-col gap-2.5 text-sm text-slate-600">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span className="font-semibold text-slate-700">${totalPrice.toFixed(2)}</span>
                 </div>
                 {totalSavings > 0 && (
                   <div className="flex justify-between text-green-600">
-                    <span>You Save</span>
-                    <span className="font-semibold">−${totalSavings.toFixed(2)}</span>
+                    <span className="flex items-center gap-1"><FaTag size={10} /> Savings</span>
+                    <span className="font-semibold">-${totalSavings.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-gray-500">
-                  <span>Delivery</span>
-                  <span className={`font-semibold ${deliveryFee === 0 ? "text-green-600" : "text-gray-700"}`}>
-                    {deliveryFee === 0 ? "Free" : `$${deliveryFee.toFixed(2)}`}
+                <div className="flex justify-between">
+                  <span className="flex items-center gap-1"><FaTruck size={10} /> Delivery</span>
+                  <span className={`font-semibold ${deliveryFee === 0 ? "text-green-600" : ""}`}>
+                    {deliveryFee === 0 ? "Free 🎉" : `$${deliveryFee.toFixed(2)}`}
                   </span>
                 </div>
-                {deliveryFee > 0 && (
-                  <p className="text-[11px] text-gray-400">Free delivery on orders over $50</p>
-                )}
-                <div className="flex justify-between text-base font-bold text-gray-800 border-t border-gray-100 pt-2 mt-1">
-                  <span>Total</span>
-                  <span className="text-[#CB0000]">${grandTotal.toFixed(2)}</span>
+                <div className="flex justify-between pt-2 border-t border-slate-100 text-base">
+                  <span className="font-bold text-slate-800">Grand Total</span>
+                  <span className="font-bold text-green-700 text-lg">${grandTotal.toFixed(2)}</span>
                 </div>
               </div>
 
-              {/* API error */}
               {apiError && (
-                <div className="mt-3 bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-[12px] text-red-600">
-                  {apiError}
+                <div className="bg-red-50 border border-red-200 text-red-600 text-xs px-3 py-2 rounded-lg mt-3">
+                  ⚠️ {apiError}
                 </div>
               )}
 
-              {/* Place Order button */}
               <button
                 onClick={handlePlaceOrder}
-                disabled={loading || cartItems.length === 0}
-                className="mt-4 w-full bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white text-sm font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                disabled={loading}
+                className="btn-primary w-full mt-4 py-3.5 text-sm flex items-center gap-2"
               >
                 {loading ? (
                   <>
@@ -430,14 +354,16 @@ const CheckoutPage = () => {
                     Placing Order…
                   </>
                 ) : (
-                  <>
-                    <FaCheckCircle size={14} />
-                    Place Order · ${grandTotal.toFixed(2)}
-                  </>
+                  <><FaLock size={12} /> Place Order</>
                 )}
               </button>
+
+              <p className="text-center text-[11px] text-slate-400 mt-3 flex items-center justify-center gap-1">
+                <FaLock size={9} /> Secure & encrypted checkout
+              </p>
             </div>
           </div>
+
         </div>
       </div>
     </div>
