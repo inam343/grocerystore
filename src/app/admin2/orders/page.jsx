@@ -224,7 +224,7 @@ export default function OrdersPage() {
       )}
 
       {/* Orders table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
         {loadingOrders ? (
           <div className="py-16 text-center">
             <div className="w-8 h-8 border-4 border-emerald-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
