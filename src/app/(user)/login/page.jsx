@@ -3,35 +3,36 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaLeaf } from "react-icons/fa";
+import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
-const Login = () => {
+export default function LoginPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ username: "", password: "" });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [form, setForm]               = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState("");
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.username.trim() || !form.password.trim()) {
+      setError("Both fields are required");
+      return;
+    }
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        "https://server-production-8923.up.railway.app/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
-      const data = await response.json();
-      if (!response.ok) {
+      const res  = await fetch("https://server-production-8923.up.railway.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+      if (!res.ok) {
         setError(data.message || "Invalid username or password");
         return;
       }
@@ -41,138 +42,118 @@ const Login = () => {
       localStorage.removeItem("redirectAfterLogin");
       window.location.href = redirect;
     } catch {
-      setError("Unable to connect to server.");
+      setError("Unable to connect to server. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4 py-12">
-      {/* Decorative blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-green-100 rounded-full opacity-40 blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-emerald-100 rounded-full opacity-40 blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-gray-100 flex items-center justify-center px-4">
+      <div className="w-full max-w-[420px]">
 
-      <div className="relative w-full max-w-[420px] animate-fadeInUp">
+        {/* Logo / branding */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg mb-3">
+            <span className="text-white text-2xl">🌿</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Welcome back</h1>
+          <p className="text-sm text-gray-400 mt-1">Sign in to your account</p>
+        </div>
+
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-          {/* Green header band */}
-          <div className="bg-gradient-to-r from-green-600 to-green-500 px-8 pt-8 pb-10">
-            <div className="flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mx-auto mb-4">
-              <FaLeaf size={26} className="text-white" />
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-8">
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5 flex items-center gap-2">
+              <span className="text-base">⚠️</span>
+              {error}
             </div>
-            <h1 className="text-2xl font-bold text-white text-center">Welcome back</h1>
-            <p className="text-green-100 text-sm text-center mt-1">Sign in to your account</p>
-          </div>
+          )}
 
-          {/* Form area — pulled up to overlap the band */}
-          <div className="px-8 pt-8 pb-8 -mt-4 bg-white rounded-t-3xl">
-            {error && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-5">
-                <span className="text-lg">⚠️</span>
-                {error}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Username
+              </label>
+              <div className="relative">
+                <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  placeholder="Enter your username"
+                  autoComplete="username"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all"
+                />
               </div>
-            )}
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Username */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Username
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Password
                 </label>
-                <div className="relative">
-                  <FaUser
-                    size={13}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    placeholder="Enter your username"
-                    required
-                    className="input-field pl-10"
-                  />
-                </div>
+                <Link href="#" className="text-xs text-green-600 hover:text-green-700 font-medium">
+                  Forgot password?
+                </Link>
               </div>
-
-              {/* Password */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-sm font-semibold text-slate-700">
-                    Password
-                  </label>
-                  <Link
-                    href="#"
-                    className="text-xs text-green-600 hover:text-green-700 font-medium"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-                <div className="relative">
-                  <FaLock
-                    size={13}
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                  />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    required
-                    className="input-field pl-10 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
-                  </button>
-                </div>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                </button>
               </div>
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full py-3 text-sm mt-2"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Signing in…
-                  </span>
-                ) : (
-                  "Sign In"
-                )}
-              </button>
-            </form>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-1"
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Signing in…
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </button>
 
-            <p className="text-center text-sm text-slate-500 mt-6">
-              Don't have an account?{" "}
-              <Link
-                href="/register"
-                className="text-green-600 font-semibold hover:text-green-700"
-              >
-                Create one free
-              </Link>
-            </p>
-          </div>
+          </form>
+
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="text-green-600 font-semibold hover:underline">
+              Create one free
+            </Link>
+          </p>
         </div>
 
-        {/* Trust badges */}
-        <div className="flex items-center justify-center gap-6 mt-6 text-xs text-slate-400">
-          <span className="flex items-center gap-1">🔒 Secure login</span>
-          <span className="flex items-center gap-1">🌿 100% organic</span>
-          <span className="flex items-center gap-1">🚚 Fast delivery</span>
-        </div>
+        <p className="text-center text-xs text-gray-400 mt-6">
+          <Link href="/" className="hover:text-green-500 transition-colors">← Back to store</Link>
+        </p>
+
       </div>
     </div>
   );
-};
-
-export default Login;
+}

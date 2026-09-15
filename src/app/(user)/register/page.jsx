@@ -3,243 +3,217 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaLeaf, FaCheck } from "react-icons/fa";
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiCheckCircle } from "react-icons/fi";
 
-const Register = () => {
+export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     email: "",
     username: "",
     password: "",
     confirmPassword: "",
   });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showPass, setShowPass] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm,  setShowConfirm]  = useState(false);
+  const [loading, setLoading]           = useState(false);
+  const [error, setError]               = useState("");
+  const [success, setSuccess]           = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
     setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
+    if (!form.email.trim() || !form.username.trim() || !form.password || !form.confirmPassword) {
+      setError("All fields are required");
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
       setError("Passwords do not match");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
       return;
     }
     setLoading(true);
     setError("");
-    setSuccess("");
     try {
-      const res = await fetch(
-        "https://server-production-8923.up.railway.app/api/auth/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
-      );
+      const res  = await fetch("https://server-production-8923.up.railway.app/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
       const data = await res.json();
       if (!res.ok) {
         setError(data.message || "Registration failed");
-      } else {
-        setSuccess("Account created! Redirecting to login…");
-        setTimeout(() => router.push("/login"), 1500);
+        return;
       }
+      setSuccess(true);
+      setTimeout(() => router.push("/login"), 2000);
     } catch {
-      setError("Cannot connect to server.");
+      setError("Cannot connect to server. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const passwordStrength = () => {
-    const p = formData.password;
-    if (!p) return null;
-    if (p.length < 6) return { label: "Weak", color: "bg-red-400", w: "w-1/3" };
-    if (p.length < 10) return { label: "Fair", color: "bg-yellow-400", w: "w-2/3" };
-    return { label: "Strong", color: "bg-green-500", w: "w-full" };
-  };
-  const strength = passwordStrength();
-
-  const fields = [
-    {
-      id: "email",
-      label: "Email address",
-      type: "email",
-      placeholder: "you@example.com",
-      icon: <FaEnvelope size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />,
-    },
-    {
-      id: "username",
-      label: "Username",
-      type: "text",
-      placeholder: "Pick a username",
-      icon: <FaUser size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />,
-    },
-  ];
+  // ── Success screen ──
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-gray-100 flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-10 max-w-[420px] w-full text-center">
+          <FiCheckCircle className="text-green-500 mx-auto mb-4" size={56} />
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Account Created!</h2>
+          <p className="text-sm text-gray-500">Redirecting you to login…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 px-4 py-12">
-      {/* Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-100 rounded-full opacity-40 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-emerald-100 rounded-full opacity-40 blur-3xl" />
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-gray-100 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-[420px]">
 
-      <div className="relative w-full max-w-[440px] animate-fadeInUp">
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-          {/* Header band */}
-          <div className="bg-gradient-to-r from-green-600 to-green-500 px-8 pt-8 pb-10">
-            <div className="flex items-center justify-center w-14 h-14 bg-white/20 rounded-2xl mx-auto mb-4">
-              <FaLeaf size={26} className="text-white" />
+        {/* Logo / branding */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-14 h-14 bg-green-500 rounded-2xl flex items-center justify-center shadow-lg mb-3">
+            <span className="text-white text-2xl">🌿</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Create an account</h1>
+          <p className="text-sm text-gray-400 mt-1">Join and start shopping fresh</p>
+        </div>
+
+        {/* Card */}
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-8">
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm rounded-lg px-4 py-3 mb-5 flex items-center gap-2">
+              <span className="text-base">⚠️</span>
+              {error}
             </div>
-            <h1 className="text-2xl font-bold text-white text-center">Create account</h1>
-            <p className="text-green-100 text-sm text-center mt-1">
-              Join thousands of happy shoppers
-            </p>
-          </div>
+          )}
 
-          <div className="px-8 pt-8 pb-8 -mt-4 bg-white rounded-t-3xl">
-            {error && (
-              <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl mb-5">
-                <span>⚠️</span> {error}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+              <div className="relative">
+                <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all"
+                />
               </div>
-            )}
-            {success && (
-              <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-xl mb-5">
-                <FaCheck size={13} /> {success}
+            </div>
+
+            {/* Username */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Username</label>
+              <div className="relative">
+                <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                <input
+                  type="text"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  placeholder="Pick a username"
+                  autoComplete="username"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all"
+                />
               </div>
-            )}
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {fields.map(({ id, label, type, placeholder, icon }) => (
-                <div key={id}>
-                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                    {label}
-                  </label>
-                  <div className="relative">
-                    {icon}
-                    <input
-                      type={type}
-                      name={id}
-                      value={formData[id]}
-                      onChange={handleChange}
-                      placeholder={placeholder}
-                      required
-                      className="input-field pl-10"
-                    />
-                  </div>
-                </div>
-              ))}
-
-              {/* Password */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Password
-                </label>
-                <div className="relative">
-                  <FaLock size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type={showPass ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Create a password"
-                    required
-                    className="input-field pl-10 pr-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPass(!showPass)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showPass ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
-                  </button>
-                </div>
-                {strength && (
-                  <div className="mt-2">
-                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full transition-all duration-300 ${strength.color} ${strength.w}`} />
-                    </div>
-                    <p className={`text-xs mt-1 font-medium ${strength.color.replace("bg-", "text-")}`}>
-                      {strength.label} password
-                    </p>
-                  </div>
-                )}
+            {/* Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Min. 6 characters"
+                  autoComplete="new-password"
+                  className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition-all"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showPassword ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+                </button>
               </div>
+            </div>
 
-              {/* Confirm password */}
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Confirm password
-                </label>
-                <div className="relative">
-                  <FaLock size={13} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type={showConfirm ? "text" : "password"}
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Repeat your password"
-                    required
-                    className={`input-field pl-10 pr-10 ${
-                      formData.confirmPassword && formData.password !== formData.confirmPassword
-                        ? "border-red-300 focus:border-red-400"
-                        : formData.confirmPassword && formData.password === formData.confirmPassword
-                        ? "border-green-400"
-                        : ""
-                    }`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showConfirm ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
-                  </button>
-                  {formData.confirmPassword && formData.password === formData.confirmPassword && (
-                    <FaCheck size={12} className="absolute right-10 top-1/2 -translate-y-1/2 text-green-500" />
-                  )}
-                </div>
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm Password</label>
+              <div className="relative">
+                <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
+                <input
+                  type={showConfirm ? "text" : "password"}
+                  name="confirmPassword"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Repeat your password"
+                  autoComplete="new-password"
+                  className={`w-full pl-10 pr-10 py-3 border rounded-xl text-sm outline-none transition-all ${
+                    form.confirmPassword && form.password !== form.confirmPassword
+                      ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
+                      : form.confirmPassword && form.password === form.confirmPassword
+                      ? "border-green-400 focus:border-green-400 focus:ring-2 focus:ring-green-100"
+                      : "border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100"
+                  }`}
+                />
+                <button type="button" onClick={() => setShowConfirm(!showConfirm)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showConfirm ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+                </button>
               </div>
+              {form.confirmPassword && form.password !== form.confirmPassword && (
+                <p className="text-xs text-red-500 mt-1 ml-1">Passwords do not match</p>
+              )}
+            </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full py-3 text-sm mt-1"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Creating account…
-                  </span>
-                ) : (
-                  "Create Account"
-                )}
-              </button>
-            </form>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-2"
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Creating Account…
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </button>
 
-            <p className="text-center text-sm text-slate-500 mt-6">
-              Already have an account?{" "}
-              <Link href="/login" className="text-green-600 font-semibold hover:text-green-700">
-                Sign in
-              </Link>
-            </p>
-          </div>
+          </form>
+
+          <p className="text-center text-sm text-gray-500 mt-6">
+            Already have an account?{" "}
+            <Link href="/login" className="text-green-600 font-semibold hover:underline">
+              Sign In
+            </Link>
+          </p>
         </div>
 
-        <div className="flex items-center justify-center gap-6 mt-6 text-xs text-slate-400">
-          <span>🔒 Privacy protected</span>
-          <span>🌿 Free to join</span>
-          <span>✉️ No spam</span>
-        </div>
+        <p className="text-center text-xs text-gray-400 mt-6">
+          <Link href="/" className="hover:text-green-500 transition-colors">← Back to store</Link>
+        </p>
+
       </div>
     </div>
   );
-};
-
-export default Register;
+}
