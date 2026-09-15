@@ -70,8 +70,8 @@ export default function AdminLoginPage() {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg mb-3 border border-gray-100 p-2">
-            <img src="/logo.png" alt="BoroBozar" className="h-full w-full object-contain" />
+          <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg mb-3">
+            B
           </div>
           <h1 className="text-2xl font-bold text-gray-800">BoroBozar Admin</h1>
           <p className="text-sm text-gray-400 mt-1">Sign in to your admin account</p>
