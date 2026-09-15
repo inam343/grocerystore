@@ -85,18 +85,16 @@ const HomeSlides = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="pb-8">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Home Slides</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Manage the slides displayed on your homepage.
-          </p>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-800">Home Slides</h1>
+          <p className="text-sm text-gray-400 mt-1">Manage the slides displayed on your homepage.</p>
         </div>
         <Link href="/admin2/addslides">
-          <button className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold shadow-sm transition">
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all text-sm">
             + Add New Slide
           </button>
         </Link>
