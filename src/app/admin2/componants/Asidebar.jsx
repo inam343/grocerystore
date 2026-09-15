@@ -7,7 +7,6 @@ import {
   FiGrid, FiImage, FiPackage, FiUsers, FiLogOut,
   FiChevronDown, FiChevronUp, FiX, FiShoppingBag, FiPlusSquare,
 } from "react-icons/fi";
-import { MdOutlineStorefront } from "react-icons/md";
 
 const NAV = [
   { href: "/admin2/Dashboard", icon: <FiGrid size={18} />, label: "Dashboard" },
@@ -57,9 +56,11 @@ export default function Asidebar({ open, onClose }) {
       {/* Logo */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
         <Link href="/admin2/Dashboard" className="flex items-center gap-2.5" onClick={onClose}>
-          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center shadow-lg">
-            <MdOutlineStorefront size={18} className="text-white" />
-          </div>
+          <img
+            src="/logo.png"
+            alt="BoroBozar"
+            className="h-6 w-auto brightness-0 invert"
+          />
           <div>
             <p className="text-white font-bold text-sm leading-none">BoroBozar</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Admin Panel</p>
