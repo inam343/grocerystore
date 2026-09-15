@@ -13,22 +13,14 @@ const Cartcard = ({ product }) => {
   const qty     = product.quantity || 1;
   const lineTotal = (product.price * qty).toFixed(2);
 
-  const discount =
-    product.oldPrice && product.price < product.oldPrice
-      ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
-      : null;
+
 
   return (
     <div className="group relative bg-white rounded-2xl border border-gray-100 hover:border-green-200 hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col sm:flex-row gap-0">
 
       {/* ── Image block ── */}
       <div className="relative flex-shrink-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center w-full sm:w-[140px] h-[140px] sm:h-auto">
-        {/* Discount badge */}
-        {discount && (
-          <span className="absolute top-2 left-2 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-            -{discount}%
-          </span>
-        )}
+    
         {/* Remove button */}
         <button
           onClick={() => removeFromCart(id)}
@@ -66,11 +58,7 @@ const Cartcard = ({ product }) => {
             {product.oldPrice && (
               <span className="text-[12px] text-gray-400 line-through">${product.oldPrice}</span>
             )}
-            {discount && (
-              <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-md">
-                Save {discount}%
-              </span>
-            )}
+
           </div>
         </div>
 
