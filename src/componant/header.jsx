@@ -48,58 +48,64 @@ const Header = () => {
   };
 
   return (
-    <div
-      className={`sticky top-0 z-50 bg-white transition-all duration-300 ${
-        scrolled ? "shadow-lg" : "shadow-sm"
-      }`}
-    >
-      {/* ── Top promo bar ── */}
+    <div className={`sticky top-0 z-50 bg-white transition-all duration-300 ${scrolled ? "shadow-lg" : "shadow-sm"}`}>
+
+      {/* ── Promo bar ── */}
       <div className="bg-gradient-to-r from-green-600 to-green-500 text-white text-center text-[11px] sm:text-xs py-1.5 font-medium tracking-wide">
         🌿 Free delivery on orders over $50 &nbsp;|&nbsp; Fresh products every day 🥦
       </div>
 
-      {/* ── Main header row ── */}
-      <header className="flex items-center gap-3 px-4 sm:px-6 md:px-10 py-3">
+      {/* ── Main header: 3-column layout ── */}
+      <header className="grid grid-cols-[1fr_auto_1fr] md:grid-cols-[180px_1fr_180px] items-center gap-3 px-4 sm:px-6 md:px-10 py-3">
 
-        {/* Logo */}
-        <Link href="/" className="flex-shrink-0 flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-            <span className="text-white text-base">🌿</span>
-          </div>
-          <img src="/logo.png" className="h-6 w-auto hidden sm:block" alt="logo" />
-        </Link>
+        {/* LEFT — Auth links (desktop) / Hamburger (mobile) */}
+        <div className="flex items-center gap-2">
+          {/* Hamburger — mobile only */}
+          <button
+            className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-600"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
+          </button>
 
-        {/* Search */}
-        <div className="hidden sm:flex flex-1 mx-2 max-w-[520px]">
-          <Search />
-        </div>
-
-        {/* Spacer on mobile */}
-        <div className="flex-1 sm:hidden" />
-
-        {/* Auth text */}
-        <div className="hidden md:flex items-center">
-          {username ? (
-            <div className="flex items-center gap-2">
-              <span className="text-[13px] font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full">
+          {/* Auth — desktop only */}
+          <div className="hidden md:flex items-center">
+            {username ? (
+              <span className="text-[13px] font-semibold text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded-full truncate">
                 Hi, {username} 👋
               </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-[13px] font-medium text-slate-600">
-              <Link href="/login" className="hover:text-green-600 transition-colors px-2 py-1 rounded-md hover:bg-green-50">
-                Login
-              </Link>
-              <span className="text-slate-300">|</span>
-              <Link href="/register" className="hover:text-green-600 transition-colors px-2 py-1 rounded-md hover:bg-green-50">
-                Register
-              </Link>
-            </div>
-          )}
+            ) : (
+              <div className="flex items-center gap-1 text-[13px] font-medium text-slate-600">
+                <Link href="/login" className="hover:text-green-600 transition-colors px-2 py-1 rounded-md hover:bg-green-50">
+                  Login
+                </Link>
+                <span className="text-slate-300">|</span>
+                <Link href="/register" className="hover:text-green-600 transition-colors px-2 py-1 rounded-md hover:bg-green-50">
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Icon group */}
-        <div className="flex items-center gap-1 sm:gap-3 ml-1">
+        {/* CENTER — Logo + Search bar */}
+        <div className="flex items-center gap-3 justify-center">
+          {/* Logo */}
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2 group">
+            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-700 rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+              <span className="text-white text-base">🌿</span>
+            </div>
+            <img src="/logo.png" className="h-6 w-auto hidden sm:block" alt="logo" />
+          </Link>
+
+          {/* Search — visible from sm up */}
+          <div className="hidden sm:flex w-[260px] md:w-[380px] lg:w-[460px]">
+            <Search />
+          </div>
+        </div>
+
+        {/* RIGHT — Cart, Wishlist, Profile */}
+        <div className="flex items-center gap-1 sm:gap-2 justify-end">
 
           {/* Profile dropdown */}
           <div className="relative" ref={profileRef}>
@@ -122,10 +128,10 @@ const Header = () => {
                       <p className="text-sm font-bold text-green-600 truncate mt-0.5">{username}</p>
                     </div>
                     {[
-                      { href: "/profile",   icon: <FaUser size={12} />,    label: "My Profile" },
-                      { href: "/orders",    icon: <FaBoxOpen size={12} />, label: "My Orders"  },
-                      { href: "/checkout",  icon: <FaTruck size={12} />,   label: "Checkout"   },
-                      { href: "/wishlist",  icon: <FaHeart size={12} />,   label: "Wishlist"   },
+                      { href: "/profile",  icon: <FaUser size={12} />,    label: "My Profile" },
+                      { href: "/orders",   icon: <FaBoxOpen size={12} />, label: "My Orders"  },
+                      { href: "/checkout", icon: <FaTruck size={12} />,   label: "Checkout"   },
+                      { href: "/wishlist", icon: <FaHeart size={12} />,   label: "Wishlist"   },
                     ].map(({ href, icon, label }) => (
                       <Link
                         key={href}
@@ -142,8 +148,7 @@ const Header = () => {
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-red-500 hover:bg-red-50 transition-colors"
                       >
-                        <FaSignOutAlt size={12} />
-                        Logout
+                        <FaSignOutAlt size={12} /> Logout
                       </button>
                     </div>
                   </>
@@ -167,7 +172,7 @@ const Header = () => {
           <Link href="/wishlist" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors group">
             <FaHeart size={19} className="text-slate-500 group-hover:text-red-500 transition-colors" />
             {wishlistCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold w-4.5 h-4.5 min-w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none px-1">
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none px-1">
                 {wishlistCount}
               </span>
             )}
@@ -183,22 +188,15 @@ const Header = () => {
             )}
           </Link>
 
-          {/* Hamburger — mobile only */}
-          <button
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-600"
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            {menuOpen ? <FaTimes size={18} /> : <FaBars size={18} />}
-          </button>
         </div>
       </header>
 
-      {/* Mobile search */}
+      {/* ── Mobile search row ── */}
       <div className="flex sm:hidden px-4 pb-2.5">
         <Search />
       </div>
 
-      {/* Mobile drawer */}
+      {/* ── Mobile drawer ── */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-slate-100 px-4 py-4 flex flex-col gap-1 animate-fadeInUp shadow-lg">
           {username ? (
@@ -245,7 +243,7 @@ const Header = () => {
         </div>
       )}
 
-      {/* Navbar always visible */}
+      {/* ── Navbar ── */}
       <Navbar />
     </div>
   );
