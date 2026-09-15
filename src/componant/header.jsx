@@ -16,7 +16,7 @@ const Header = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const profileRef = useRef(null);
-  const { cartCount, wishlistCount, reloadUserData } = useCart();
+  const { cartCount, reloadUserData } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 8);
@@ -167,16 +167,6 @@ const Header = () => {
               </div>
             )}
           </div>
-
-          {/* Wishlist */}
-          <Link href="/wishlist" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors group">
-            <FaHeart size={19} className="text-slate-500 group-hover:text-red-500 transition-colors" />
-            {wishlistCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center leading-none px-1">
-                {wishlistCount}
-              </span>
-            )}
-          </Link>
 
           {/* Cart */}
           <Link href="/cart" className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-green-50 transition-colors group">
