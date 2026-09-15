@@ -187,8 +187,11 @@ export default function ProductTable({ tittle }) {
                     <td className="p-3 sm:p-4 font-semibold text-gray-800 text-xs sm:text-sm">
                       {product.price ? `$${product.price}` : "—"}
                     </td>
-                    <td className="p-3 sm:p-4 text-gray-400 line-through text-xs sm:text-sm">
-                      {product.oldPrice ? `$${product.oldPrice}` : "—"}
+                    <td className="p-3 sm:p-4 text-xs sm:text-sm">
+                      {product.oldPrice
+                        ? <span className="text-gray-400 line-through">${product.oldPrice}</span>
+                        : <span className="text-gray-300">—</span>
+                      }
                     </td>
                     <td className="p-3 sm:p-4 text-gray-600 text-xs sm:text-sm">
                       {product.rating ? `⭐ ${product.rating}` : "—"}
