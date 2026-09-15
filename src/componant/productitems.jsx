@@ -11,20 +11,11 @@ const Productitem = ({ product }) => {
   const id = product._id || product.id;
   const wished = isInWishlist(id);
 
-  const discount =
-    product.oldPrice && product.price < product.oldPrice
-      ? Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)
-      : null;
+ 
 
   return (
     <div className="group relative bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
-      {/* Discount badge */}
-      {discount && (
-        <span className="absolute top-2.5 left-2.5 z-10 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-          -{discount}%
-        </span>
-      )}
-
+ 
       {/* Wishlist button */}
       <button
         className={`absolute top-2.5 right-2.5 z-10 w-7 h-7 flex items-center justify-center rounded-full transition-all duration-200 ${
