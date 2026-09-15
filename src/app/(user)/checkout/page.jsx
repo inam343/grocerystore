@@ -19,6 +19,7 @@ import { API_BASE } from "@/lib/api";
 
 const CheckoutPage = () => {
   const router = useRouter();
+
   const {
     cartItems,
     cartCount,
@@ -197,7 +198,8 @@ const CheckoutPage = () => {
       setOrderPlaced(true);
     } catch (err) {
       setApiError(
-        err.message || "Something went wrong. Please try again."
+        err.message ||
+          "Something went wrong. Please try again."
       );
     } finally {
       setLoading(false);
@@ -218,7 +220,7 @@ const CheckoutPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-10 max-w-[500px] w-full text-center animate-fadeInUp">
-          
+
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
             <FaCheckCircle
               className="text-green-500"
@@ -282,7 +284,7 @@ const CheckoutPage = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="bg-white rounded-2xl shadow-xl p-10 max-w-[420px] w-full text-center">
-          
+
           <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <FaShoppingBag
               size={28}
@@ -312,7 +314,7 @@ const CheckoutPage = () => {
   /* ── Main checkout ── */
 
   const inputCls = (field) =>
-    `input-field pl-10 ${
+    `input-field !pl-10 ${
       errors[field]
         ? "border-red-400 focus:border-red-400 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.12)]"
         : ""
@@ -403,7 +405,7 @@ const CheckoutPage = () => {
 
                   <div className="relative">
                     <FaUserCircle
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"
                       size={14}
                     />
 
@@ -431,7 +433,7 @@ const CheckoutPage = () => {
 
                   <div className="relative">
                     <MdEmail
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"
                       size={15}
                     />
 
@@ -440,7 +442,7 @@ const CheckoutPage = () => {
                       value={form.email}
                       onChange={handleChange}
                       placeholder="you@example.com"
-                      className="input-field pl-10"
+                      className="input-field !pl-10"
                     />
                   </div>
                 </div>
@@ -454,7 +456,7 @@ const CheckoutPage = () => {
 
                   <div className="relative">
                     <FaPhoneAlt
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10"
                       size={12}
                     />
 
@@ -483,7 +485,7 @@ const CheckoutPage = () => {
 
                   <div className="relative">
                     <FaMapMarkerAlt
-                      className="absolute left-3 top-[14px] text-slate-400 pointer-events-none"
+                      className="absolute left-3 top-3 text-slate-400 pointer-events-none z-10"
                       size={13}
                     />
 
@@ -493,7 +495,7 @@ const CheckoutPage = () => {
                       onChange={handleChange}
                       rows={2}
                       placeholder="Street, City, State, ZIP"
-                      className={`input-field pl-10 resize-none ${
+                      className={`input-field !pl-10 resize-none ${
                         errors.address
                           ? "border-red-400"
                           : ""
@@ -516,7 +518,7 @@ const CheckoutPage = () => {
 
                   <div className="relative">
                     <MdNotes
-                      className="absolute left-3 top-[14px] text-slate-400 pointer-events-none"
+                      className="absolute left-3 top-3 text-slate-400 pointer-events-none z-10"
                       size={15}
                     />
 
@@ -526,7 +528,7 @@ const CheckoutPage = () => {
                       onChange={handleChange}
                       rows={2}
                       placeholder="E.g. leave at the door, ring the bell…"
-                      className="input-field pl-10 resize-none"
+                      className="input-field !pl-10 resize-none"
                     />
                   </div>
                 </div>
